@@ -1,8 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Clock, Calendar as CalendarIcon, Settings, User as UserIcon } from 'lucide-react';
+import { Save, Clock, Calendar as CalendarIcon, Settings, User as UserIcon, Activity } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+
+interface DaySchedule {
+  active: boolean;
+  start: string;
+  end: string;
+}
 
 export default function ProfessionalSettings() {
   const [loading, setLoading] = useState(true);
@@ -12,19 +18,14 @@ export default function ProfessionalSettings() {
   const [specialty, setSpecialty] = useState('');
   const [duration, setDuration] = useState('45');
   
-  const [days, setDays] = useState<Record<string, boolean>>({
-    monday: true,
-    tuesday: true,
-    wednesday: true,
-    thursday: true,
-    friday: true,
-    saturday: false,
-    sunday: false
-  });
-
-  const [hours, setHours] = useState({
-    start: '09:00',
-    end: '18:00'
+  const [schedule, setSchedule] = useState<Record<string, DaySchedule>>({
+    monday: { active: true, start: '09:00', end: '18:00' },
+    tuesday: { active: true, start: '09:00', end: '18:00' },
+    wednesday: { active: true, start: '09:00', end: '18:00' },
+    thursday: { active: true, start: '09:00', end: '18:00' },
+    friday: { active: true, start: '09:00', end: '18:00' },
+    saturday: { active: false, start: '09:00', end: '13:00' },
+    sunday: { active: false, start: '09:00', end: '13:00' }
   });
 
   useEffect(() => {
@@ -35,11 +36,11 @@ export default function ProfessionalSettings() {
         if (data) {
           if (data.specialty) setSpecialty(data.specialty);
           if (data.schedule) {
-            // Formato JSON: { days: { ... }, hours: { start, end }, duration: 45 }
-            const sched = data.schedule as Record<string, unknown>;
-            if (sched.days) setDays(sched.days as Record<string, boolean>);
-            if (sched.hours) setHours(sched.hours as {start: string, end: string});
-            if (sched.duration) setDuration(String(sched.duration));
+            const savedSched = data.schedule as { complex?: Record<string, DaySchedule>, duration?: number };
+            if (savedSched.complex) {
+              setSchedule(savedSched.complex);
+            }
+            if (savedSched.duration) setDuration(savedSched.duration.toString());
           }
         }
       }
@@ -55,15 +56,14 @@ export default function ProfessionalSettings() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const scheduleObj = {
-      days,
-      hours,
+    const finalSchedule = {
+      complex: schedule,
       duration: parseInt(duration)
     };
 
     const { error } = await supabase.from('User').update({
       specialty: specialty,
-      schedule: scheduleObj,
+      schedule: finalSchedule,
       updatedAt: new Date().toISOString()
     }).eq('id', user.id);
 
@@ -77,9 +77,14 @@ export default function ProfessionalSettings() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  if (loading) {
-    return <div className="text-center text-teal-600 animate-pulse mt-10">Cargando configuración...</div>;
-  }
+  const updateDay = (day: string, field: keyof DaySchedule, value: string | boolean) => {
+    setSchedule(prev => ({
+      ...prev,
+      [day]: { ...prev[day], [field]: value }
+    }));
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-teal-600"><Activity className="animate-spin" /></div>;
 
   const dayNames = [
     { key: 'monday', label: 'Lunes' },
@@ -98,12 +103,12 @@ export default function ProfessionalSettings() {
           <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
             <Settings className="text-teal-600" /> Configuración
           </h1>
-          <p className="text-slate-500 mt-2">Ajusta tu perfil y horarios de atención para los turnos.</p>
+          <p className="text-slate-500 mt-2">Ajusta tu perfil y horarios de atención personalizados por día.</p>
         </div>
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
+          className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-8 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
         >
           <Save size={20} /> {saving ? 'Guardando...' : 'Guardar Cambios'}
         </button>
@@ -115,15 +120,15 @@ export default function ProfessionalSettings() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Perfil */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-            <UserIcon className="text-teal-500" /> Mi Perfil Público
-          </h2>
-          
+      {/* Perfil */}
+      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
+          <UserIcon className="text-teal-500" /> Perfil Profesional
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Especialidad</label>
+            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Mi Especialidad</label>
             <input 
               type="text" 
               value={specialty}
@@ -131,39 +136,9 @@ export default function ProfessionalSettings() {
               placeholder="Ej: Kinesiólogo Deportivo" 
               className="w-full bg-slate-50 border-none p-4 rounded-2xl text-slate-800 outline-none focus:ring-2 ring-teal-200 transition-all"
             />
-            <p className="text-xs text-slate-400 mt-1 ml-1">Esto es lo que verán los pacientes al sacar un turno.</p>
           </div>
-        </div>
-
-        {/* Horarios */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-            <Clock className="text-teal-500" /> Horarios de Atención
-          </h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Hora Inicio</label>
-              <input 
-                type="time" 
-                value={hours.start}
-                onChange={(e) => setHours({ ...hours, start: e.target.value })}
-                className="w-full bg-slate-50 border-none p-4 rounded-2xl text-slate-800 font-bold outline-none focus:ring-2 ring-teal-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase ml-1">Hora Fin</label>
-              <input 
-                type="time" 
-                value={hours.end}
-                onChange={(e) => setHours({ ...hours, end: e.target.value })}
-                className="w-full bg-slate-50 border-none p-4 rounded-2xl text-slate-800 font-bold outline-none focus:ring-2 ring-teal-200"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 pt-4">
-            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Duración por Turno (Minutos)</label>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Duración de Turno</label>
             <select 
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
@@ -171,29 +146,57 @@ export default function ProfessionalSettings() {
             >
               <option value="30">30 Minutos</option>
               <option value="45">45 Minutos</option>
-              <option value="60">1 Hora (60 Minutos)</option>
+              <option value="60">1 Hora</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Días de Trabajo */}
+      {/* Agenda Detallada */}
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-4">
-          <CalendarIcon className="text-teal-500" /> Días Laborales
+          <CalendarIcon className="text-teal-500" /> Mi Agenda Semanal
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        
+        <div className="space-y-4">
           {dayNames.map(day => (
-            <div 
-              key={day.key}
-              onClick={() => setDays({ ...days, [day.key]: !days[day.key] })}
-              className={`p-4 rounded-2xl text-center font-bold cursor-pointer transition-all active:scale-95 ${
-                days[day.key] 
-                  ? 'bg-teal-500 text-white shadow-md border-teal-500' 
-                  : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-teal-50 hover:text-teal-600'
-              }`}
-            >
-              {day.label}
+            <div key={day.key} className={`p-6 rounded-3xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${schedule[day.key].active ? 'bg-teal-50/30 border-teal-100' : 'bg-slate-50/50 border-slate-100 opacity-60'}`}>
+              <div className="flex items-center gap-4 min-w-[120px]">
+                <input 
+                  type="checkbox" 
+                  checked={schedule[day.key].active}
+                  onChange={(e) => updateDay(day.key, 'active', e.target.checked)}
+                  className="w-6 h-6 rounded-lg accent-teal-500 cursor-pointer"
+                />
+                <span className={`font-bold ${schedule[day.key].active ? 'text-teal-900' : 'text-slate-400'}`}>{day.label}</span>
+              </div>
+
+              {schedule[day.key].active && (
+                <div className="flex items-center gap-4 animate-in slide-in-from-left-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Desde</span>
+                    <input 
+                      type="time" 
+                      value={schedule[day.key].start}
+                      onChange={(e) => updateDay(day.key, 'start', e.target.value)}
+                      className="bg-white border-none p-2 rounded-xl text-sm font-bold text-teal-800 shadow-sm outline-none focus:ring-2 ring-teal-200"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Hasta</span>
+                    <input 
+                      type="time" 
+                      value={schedule[day.key].end}
+                      onChange={(e) => updateDay(day.key, 'end', e.target.value)}
+                      className="bg-white border-none p-2 rounded-xl text-sm font-bold text-teal-800 shadow-sm outline-none focus:ring-2 ring-teal-200"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {!schedule[day.key].active && (
+                <span className="text-sm italic text-slate-400">No laborable</span>
+              )}
             </div>
           ))}
         </div>

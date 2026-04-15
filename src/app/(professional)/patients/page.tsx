@@ -33,7 +33,7 @@ export default function PatientsPage() {
       if (error) console.error('Error fetching patients:', error);
 
       if (data) {
-        const loadedPatients = data.map((p: any) => ({
+        const loadedPatients = data.map((p: { id: string; name: string; email: string | null; updatedAt: string; clinicalHistory: string | null }) => ({
           id: p.id,
           name: p.name,
           email: p.email || 'Sin email',

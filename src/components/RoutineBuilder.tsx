@@ -24,7 +24,7 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
     const fetchExercises = async () => {
       const { data } = await supabase.from('Exercise').select('*');
       if (data) {
-        const formatted = data.map((e: any) => ({
+        const formatted = data.map((e: { id: string; name: string; muscleGroup: string }) => ({
           id: e.id,
           name: e.name,
           muscleGroup: e.muscleGroup
@@ -46,7 +46,7 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
     setSelectedExercises(selectedExercises.filter(e => e.id !== id));
   };
 
-  const updateExercise = (id: string, field: string, value: any) => {
+  const updateExercise = (id: string, field: keyof Exercise, value: string | number) => {
     setSelectedExercises(selectedExercises.map(ex => 
       ex.id === id ? { ...ex, [field]: value } : ex
     ));
@@ -82,8 +82,8 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
       if (iError) throw iError;
 
       setMessage('¡Rutina guardada y asignada con éxito!');
-    } catch (error: any) {
-      setMessage('Error al guardar: ' + error.message);
+    } catch (error: unknown) {
+      setMessage('Error al guardar: ' + (error instanceof Error ? error.message : 'Desconocido'));
     } finally {
       setSaving(false);
       setTimeout(() => setMessage(''), 3000);
