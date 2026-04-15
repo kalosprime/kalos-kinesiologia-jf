@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String
+  specialty     String?
+  schedule      Json?          // Horarios de atención (ej: { mon: ["08:00", "17:00"], ... })
+  patients      Patient[]
+  appointments  Appointment[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Patient {
+  id            String         @id @default(cuid())
+  name          String
+  email         String?        @unique
+  phone         String?
+  clinicalHistory String?      @db.Text
+  professional  User           @relation(fields: [professionalId], references: [id])
+  professionalId String
+  appointments  Appointment[]
+  routines      Routine[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum AppointmentStatus {
+  PENDIENTE
+  COMPLETADO
+  CANCELADO
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  date          DateTime
+  status        AppointmentStatus @default(PENDIENTE)
+  notes         String?
+  professional  User              @relation(fields: [professionalId], references: [id])
+  professionalId String
+  patient       Patient           @relation(fields: [patientId], references: [id])
+  patientId     String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Exercise {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  muscleGroup   String         // Ej: "Cuádriceps", "Core", "Hombro"
+  videoUrl      String?
+  routineItems  RoutineItem[]
+  createdAt     DateTime       @default(now())
+}
+
+model Routine {
+  id            String         @id @default(cuid())
+  name          String         @default("Nueva Rutina")
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  patientId     String
+  items         RoutineItem[]
+  notes         String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model RoutineItem {
+  id            String         @id @default(cuid())
+  routine       Routine        @relation(fields: [routineId], references: [id])
+  routineId     String
+  exercise      Exercise       @relation(fields: [exerciseId], references: [id])
+  exerciseId     String
+  series        Int
+  reps          String         // Usamos string para soportar "10", "10-12", "Fallo", etc.
+  notes         String?
+}

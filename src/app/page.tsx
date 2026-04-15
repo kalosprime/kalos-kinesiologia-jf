@@ -1,64 +1,104 @@
-import Image from "next/image";
+import { Calendar, Users, Activity, Clock, Plus, Search } from 'lucide-react';
 
-export default function Home() {
+export default function Dashboard() {
+  const appointments = [
+    { id: 1, patient: "Mateo Rossi", time: "09:00", type: "Rehabilitación Rodilla", status: "Pendiente", color: "bg-blue-100 text-blue-700" },
+    { id: 2, patient: "Lucía Fernández", time: "10:30", type: "Post-operatorio", status: "Confirmado", color: "bg-green-100 text-green-700" },
+    { id: 3, patient: "Carlos Gómez", time: "11:45", type: "RPG", status: "En Camino", color: "bg-purple-100 text-purple-700" },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-[#fafafa] p-8 flex">
+      {/* Sidebar Simulado */}
+      <aside className="w-64 flex flex-col gap-6 mr-8">
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-10 h-10 bg-teal-200 rounded-xl flex items-center justify-center">
+            <Activity className="text-teal-800" />
+          </div>
+          <span className="font-bold text-xl tracking-tight">Kalos JF</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        
+        <nav className="flex flex-col gap-2">
+          <button className="flex items-center gap-3 px-4 py-3 bg-teal-50 text-teal-800 rounded-2xl font-medium transition-all">
+            <Calendar size={20} /> Dashboard
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
+            <Users size={20} /> Pacientes
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
+            <Activity size={20} /> Rutinas
+          </button>
+          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
+            <Clock size={20} /> Historial
+          </button>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 max-w-5xl">
+        <header className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">¡Hola, Profesional! 👋</h1>
+            <p className="text-slate-500 mt-1">Aquí tienes tus pacientes para hoy.</p>
+          </div>
+          <button className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
+            <Plus size={20} /> Nuevo Turno
+          </button>
+        </header>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-6 mb-10">
+          {[
+            { label: 'Turnos de Hoy', val: '8', icon: <Clock />, color: 'bg-teal-100' },
+            { label: 'Pacientes Activos', val: '24', icon: <Users />, color: 'bg-purple-100' },
+            { label: 'Rutinas Creadas', val: '156', icon: <Activity />, color: 'bg-orange-100' }
+          ].map((stat, i) => (
+            <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className={`${stat.color} p-4 rounded-2xl`}>{stat.icon}</div>
+              <div>
+                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+                <p className="text-2xl font-bold text-slate-800">{stat.val}</p>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {/* Appointments Section */}
+        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-50 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-slate-800">Próximos Turnos</h2>
+            <div className="flex items-center bg-slate-50 px-4 py-2 rounded-xl">
+              <Search size={16} className="text-slate-400 mr-2" />
+              <input type="text" placeholder="Buscar paciente..." className="bg-transparent outline-none text-sm text-slate-600" />
+            </div>
+          </div>
+          
+          <div className="p-0">
+            {appointments.map((apt) => (
+              <div key={apt.id} className="flex items-center justify-between p-6 hover:bg-slate-50 transition-colors border-b last:border-0 border-slate-50">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-600">
+                    {apt.patient[0]}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800">{apt.patient}</h3>
+                    <p className="text-xs text-slate-500 font-medium">{apt.type}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-2 text-slate-500">
+                    <Clock size={16} />
+                    <span className="text-sm font-semibold">{apt.time}</span>
+                  </div>
+                  <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${apt.color}`}>
+                    {apt.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
