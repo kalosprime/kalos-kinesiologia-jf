@@ -30,7 +30,7 @@ export default function ProfessionalDashboard() {
       }
 
       // Obtener los turnos de este profesional
-      const { data: apts } = await supabase
+      const { data: apts, error } = await supabase
         .from('Appointment')
         .select(`
           id,
@@ -41,6 +41,8 @@ export default function ProfessionalDashboard() {
         `)
         .eq('professionalId', user.id)
         .order('createdAt', { ascending: false });
+
+      if (error) console.error('Error fetching pro appointments:', error);
 
       if (apts) {
         const loadedApts = apts.map((a: { id: string; status: string; notes: string; Patient: { name: string } | null }, idx: number) => {

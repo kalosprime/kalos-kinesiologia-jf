@@ -156,9 +156,9 @@ export default function BookAppointmentPage() {
           <p className="text-slate-500 mb-6">
             Tu sesión con <strong>{selectedProName}</strong> ha sido agendada para el <strong>{selectedDate}</strong> a las <strong>{selectedTime}</strong>.
           </p>
-          <Link href="/dashboard" className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-6 py-3 rounded-xl font-bold transition-all inline-block">
+          <a href="/dashboard" className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-6 py-3 rounded-xl font-bold transition-all inline-block">
             Volver a mi Panel
-          </Link>
+          </a>
         </div>
       )}
     </div>

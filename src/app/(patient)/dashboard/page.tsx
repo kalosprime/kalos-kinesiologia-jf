@@ -35,7 +35,7 @@ export default function PatientDashboard() {
       }
 
       // Buscar el último turno
-      const { data: apts } = await supabase
+      const { data: apts, error } = await supabase
         .from('Appointment')
         .select(`
           date,
@@ -45,6 +45,8 @@ export default function PatientDashboard() {
         .eq('patientId', user.id)
         .order('createdAt', { ascending: false })
         .limit(1);
+
+      if (error) console.error('Error fetching patient appointment:', error);
 
       if (apts && apts.length > 0) {
         const apt = apts[0];
