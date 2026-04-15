@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Mail, Lock, UserPlus, User } from 'lucide-react';
+import { Mail, Lock, UserPlus, User } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
     try {
       // 1. Crear el usuario en Supabase Auth
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -34,6 +34,25 @@ export default function RegisterPage() {
       if (error) {
         setMessage('Error al registrar: ' + error.message);
       } else {
+        // 2. Guardar en la tabla pública correspondiente
+        if (data.user) {
+          if (role === 'professional') {
+            await supabase.from('User').insert({
+              id: data.user.id,
+              email: email,
+              password: 'auth-handled',
+              name: name,
+              updatedAt: new Date().toISOString()
+            });
+          } else {
+            await supabase.from('Patient').insert({
+              id: data.user.id,
+              name: name,
+              email: email,
+              updatedAt: new Date().toISOString()
+            });
+          }
+        }
         setMessage('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.');
       }
     } catch (error: unknown) {

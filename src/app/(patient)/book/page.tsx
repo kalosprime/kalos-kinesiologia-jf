@@ -1,27 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, CheckCircle2, ChevronRight, User } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+
+interface Pro {
+  id: string;
+  name: string;
+  specialty: string | null;
+}
 
 export default function BookAppointmentPage() {
   const [step, setStep] = useState(1);
-  const [selectedPro, setSelectedPro] = useState<string | null>(null);
+  const [selectedProId, setSelectedProId] = useState<string | null>(null);
+  const [selectedProName, setSelectedProName] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  
+  const [professionals, setProfessionals] = useState<Pro[]>([]);
 
-  const professionals = [
-    { id: '1', name: 'Manuel Amelong', specialty: 'Kinesiólogo Deportivo', available: true },
-    { id: '2', name: 'Lucía Fernández', specialty: 'Rehabilitación Traumatológica', available: true },
-  ];
+  useEffect(() => {
+    const fetchProfessionals = async () => {
+      const { data } = await supabase.from('User').select('id, name, specialty');
+      if (data) {
+        setProfessionals(data);
+      }
+    };
+    fetchProfessionals();
+  }, []);
 
   const dates = ['Hoy', 'Mañana', 'Viernes 19', 'Lunes 22'];
   const times = ['09:00', '10:30', '14:00', '16:45', '18:00'];
 
-  const handleConfirm = () => {
-    setStep(4);
-    // Aquí iría el código para guardar el turno en la tabla Appointment de Supabase
-    // y enviarle una notificación o asignárselo a Manuel Amelong.
+  const handleConfirm = async () => {
+    // Buscar qué paciente inició sesión
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !selectedProId) return;
+
+    // Guardar turno en Supabase (Appointment)
+    const { error } = await supabase.from('Appointment').insert({
+      id: crypto.randomUUID(), // Generar un ID único para el turno
+      date: new Date().toISOString(), // Guardamos la fecha actual como aproximación técnica por ahora
+      status: 'PENDIENTE',
+      professionalId: selectedProId,
+      patientId: user.id,
+      notes: `Turno agendado: ${selectedDate} a las ${selectedTime}`,
+      updatedAt: new Date().toISOString()
+    });
+
+    if (!error) {
+      setStep(4);
+    } else {
+      console.error('Error al guardar turno:', error);
+      alert('Hubo un problema al agendar el turno. Intenta nuevamente.');
+    }
   };
 
   return (
@@ -34,24 +67,28 @@ export default function BookAppointmentPage() {
       {step === 1 && (
         <div className="space-y-4">
           <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wider mb-2">1. Selecciona Profesional</h2>
-          {professionals.map(pro => (
-            <div 
-              key={pro.id} 
-              onClick={() => { setSelectedPro(pro.name); setStep(2); }}
-              className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between cursor-pointer hover:border-purple-200 transition-all active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 font-bold">
-                  <User size={20} />
+          {professionals.length === 0 ? (
+            <p className="text-slate-400 italic">Cargando profesionales...</p>
+          ) : (
+            professionals.map(pro => (
+              <div 
+                key={pro.id} 
+                onClick={() => { setSelectedProId(pro.id); setSelectedProName(pro.name); setStep(2); }}
+                className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between cursor-pointer hover:border-purple-200 transition-all active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 font-bold">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800">{pro.name}</h3>
+                    <p className="text-xs text-slate-500">{pro.specialty || 'Kinesiólogo'}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-800">{pro.name}</h3>
-                  <p className="text-xs text-slate-500">{pro.specialty}</p>
-                </div>
+                <ChevronRight className="text-slate-300" />
               </div>
-              <ChevronRight className="text-slate-300" />
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 
@@ -62,7 +99,7 @@ export default function BookAppointmentPage() {
           </button>
           
           <div>
-            <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wider mb-4">2. Elige el Día con {selectedPro}</h2>
+            <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wider mb-4">2. Elige el Día con {selectedProName}</h2>
             <div className="grid grid-cols-2 gap-4">
               {dates.map(date => (
                 <div 
@@ -117,7 +154,7 @@ export default function BookAppointmentPage() {
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">¡Turno Confirmado!</h2>
           <p className="text-slate-500 mb-6">
-            Tu sesión con <strong>{selectedPro}</strong> ha sido agendada para el <strong>{selectedDate}</strong> a las <strong>{selectedTime}</strong>.
+            Tu sesión con <strong>{selectedProName}</strong> ha sido agendada para el <strong>{selectedDate}</strong> a las <strong>{selectedTime}</strong>.
           </p>
           <Link href="/dashboard" className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-6 py-3 rounded-xl font-bold transition-all inline-block">
             Volver a mi Panel
