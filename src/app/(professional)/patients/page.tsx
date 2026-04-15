@@ -1,5 +1,9 @@
-import { Search, UserPlus, MoreVertical, FileText, ClipboardList, Users } from 'lucide-react';
+'use client';
+
+import { Search, UserPlus, MoreVertical, FileText, ClipboardList, Users, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface Patient {
   id: string;
@@ -11,8 +15,47 @@ interface Patient {
 }
 
 export default function PatientsPage() {
-  // Lista vacía para un profesional nuevo
-  const patients: Patient[] = [];
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Obtenemos los pacientes (en un futuro filtrados por professionalId)
+      const { data, error } = await supabase
+        .from('Patient')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) console.error('Error fetching patients:', error);
+
+      if (data) {
+        const loadedPatients = data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          email: p.email || 'Sin email',
+          lastSession: new Date(p.updatedAt).toLocaleDateString(),
+          condition: p.clinicalHistory || 'Sin diagnóstico',
+          color: 'bg-teal-100'
+        }));
+        setPatients(loadedPatients);
+      }
+      setLoading(false);
+    };
+    fetchPatients();
+  }, []);
+
+  const filteredPatients = patients.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.condition.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-teal-600"><Activity className="animate-spin" /></div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -34,18 +77,20 @@ export default function PatientsPage() {
               <input 
                 type="text" 
                 placeholder="Buscar por nombre o patología..." 
-                className="bg-transparent outline-none text-sm text-slate-600 w-full" 
+                className="bg-transparent outline-none text-sm text-slate-600 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           
-          {patients.length === 0 ? (
+          {filteredPatients.length === 0 ? (
             <div className="p-16 text-center flex flex-col items-center justify-center text-slate-400">
               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                 <Users size={40} className="text-slate-300" />
               </div>
-              <h2 className="text-xl font-bold text-slate-600 mb-2">No tienes pacientes registrados</h2>
-              <p className="text-sm max-w-md mb-6">Comienza a construir tu base de datos clínica agregando a tu primer paciente.</p>
+              <h2 className="text-xl font-bold text-slate-600 mb-2">No hay pacientes que coincidan</h2>
+              <p className="text-sm max-w-md mb-6">Asegúrate de haber registrado pacientes o prueba con otro término de búsqueda.</p>
               <Link href="/patients/new" className="bg-teal-50 text-teal-700 hover:bg-teal-100 px-6 py-3 rounded-xl font-bold transition-all">
                 Añadir mi primer paciente
               </Link>
@@ -61,7 +106,7 @@ export default function PatientsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {patients.map((p) => (
+                {filteredPatients.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
