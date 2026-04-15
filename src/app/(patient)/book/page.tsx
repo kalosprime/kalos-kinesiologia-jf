@@ -53,7 +53,7 @@ export default function BookAppointmentPage() {
       setStep(4);
     } else {
       console.error('Error al guardar turno:', error);
-      alert('Hubo un problema al agendar el turno. Intenta nuevamente.');
+      alert('Hubo un problema al agendar el turno: ' + error.message);
     }
   };
 
