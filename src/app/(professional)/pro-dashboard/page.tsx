@@ -45,11 +45,15 @@ export default function ProfessionalDashboard() {
       if (error) console.error('Error fetching pro appointments:', error);
 
       if (apts) {
-        const loadedApts = apts.map((a: { id: string; status: string; notes: string; Patient: { name: string } | null }, idx: number) => {
+        const loadedApts = apts.map((a, idx: number) => {
           const match = a.notes?.match(/Turno agendado: (.*) a las (.*)/);
+          
+          // Manejar si Patient es un objeto o un arreglo (Supabase varía según la relación)
+          const patientData = Array.isArray(a.Patient) ? a.Patient[0] : a.Patient;
+          
           return {
             id: a.id || idx.toString(),
-            patient: a.Patient?.name || 'Paciente Nuevo',
+            patient: (patientData as { name: string })?.name || 'Paciente Nuevo',
             time: match ? match[2] : 'Sin horario',
             type: 'Consulta Inicial',
             status: a.status,

@@ -51,10 +51,14 @@ export default function PatientDashboard() {
       if (apts && apts.length > 0) {
         const apt = apts[0];
         const match = apt.notes?.match(/Turno agendado: (.*) a las (.*)/);
+        
+        // Manejar si User es objeto o arreglo
+        const userData = Array.isArray(apt.User) ? apt.User[0] : apt.User;
+        
         setNextSession({
           date: match ? match[1] : new Date(apt.date).toLocaleDateString(),
           time: match ? match[2] : 'Por definir',
-          professionalName: (apt.User as { name?: string })?.name || 'Tu Kinesiólogo'
+          professionalName: (userData as { name: string })?.name || 'Tu Kinesiólogo'
         });
       }
       
