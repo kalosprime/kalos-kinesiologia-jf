@@ -74,7 +74,10 @@ export default function PatientDashboard() {
             <CalendarClock size={32} />
           </div>
           <h2 className="text-xl font-bold text-slate-800">Sin turnos próximos</h2>
-          <p className="text-slate-500 mt-2 text-sm">Tu kinesiólogo aún no ha programado tu próxima sesión.</p>
+          <p className="text-slate-500 mt-2 text-sm mb-6">Tu kinesiólogo aún no ha programado tu próxima sesión.</p>
+          <Link href="/book" className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2">
+            <Plus size={18} /> Agendar un Turno
+          </Link>
         </div>
       )}
 
