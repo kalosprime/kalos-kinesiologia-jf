@@ -1,6 +1,23 @@
+'use client';
+
 import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function PatientDashboard() {
+  const [userName, setUserName] = useState('Paciente');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.full_name) {
+        // Obtenemos solo el primer nombre
+        setUserName(user.user_metadata.full_name.split(' ')[0]);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const routine = [
     { id: 1, name: 'Sentadilla Mono-podal', series: 3, reps: '12' },
     { id: 2, name: 'Puente de Glúteo', series: 4, reps: '15' },
@@ -11,7 +28,7 @@ export default function PatientDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Saludo */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Hola, Mateo 👋</h1>
+        <h1 className="text-3xl font-bold text-slate-800">Hola, {userName} 👋</h1>
         <p className="text-slate-500 mt-2">Aquí tienes tu plan de rehabilitación.</p>
       </div>
 

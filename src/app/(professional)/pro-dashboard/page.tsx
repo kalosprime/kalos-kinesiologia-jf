@@ -1,6 +1,22 @@
+'use client';
+
 import { Users, Activity, Clock, Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfessionalDashboard() {
+  const [userName, setUserName] = useState('Profesional');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.full_name) {
+        setUserName(user.user_metadata.full_name.split(' ')[0]);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const appointments = [
     { id: 1, patient: "Mateo Rossi", time: "09:00", type: "Rehabilitación Rodilla", status: "Pendiente", color: "bg-blue-100 text-blue-700" },
     { id: 2, patient: "Lucía Fernández", time: "10:30", type: "Post-operatorio", status: "Confirmado", color: "bg-green-100 text-green-700" },
@@ -11,7 +27,7 @@ export default function ProfessionalDashboard() {
     <div className="max-w-5xl mx-auto">
       <header className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">¡Hola, Manuel! 👋</h1>
+          <h1 className="text-3xl font-bold text-slate-800">¡Hola, {userName}! 👋</h1>
           <p className="text-slate-500 mt-1">Aquí tienes tus pacientes para hoy.</p>
         </div>
         <button className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">

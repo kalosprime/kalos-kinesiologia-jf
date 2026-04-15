@@ -1,18 +1,40 @@
+'use client';
+
 import { Home, Calendar, Dumbbell, User } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function PatientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [userInitials, setUserInitials] = useState('P');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.full_name) {
+        const fullName = user.user_metadata.full_name;
+        const splitName = fullName.split(' ');
+        if (splitName.length > 1) {
+          setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
+        } else {
+          setUserInitials(fullName.substring(0, 2).toUpperCase());
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
       {/* Top Header para móvil */}
       <header className="bg-white p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10 md:hidden">
         <span className="font-bold text-xl tracking-tight text-slate-800">Kalos<span className="text-purple-600">Paciente</span></span>
         <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">
-          MR
+          {userInitials}
         </div>
       </header>
 

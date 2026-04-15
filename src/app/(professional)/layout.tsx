@@ -1,11 +1,35 @@
+'use client';
+
 import { Calendar, Users, Activity, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfessionalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [userName, setUserName] = useState('Manuel Amelong');
+  const [userInitials, setUserInitials] = useState('MA');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.full_name) {
+        const fullName = user.user_metadata.full_name;
+        setUserName(fullName);
+        const splitName = fullName.split(' ');
+        if (splitName.length > 1) {
+          setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
+        } else {
+          setUserInitials(fullName.substring(0, 2).toUpperCase());
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#fafafa] flex">
       {/* Menú Lateral Fijo */}
@@ -36,10 +60,10 @@ export default function ProfessionalLayout({
         {/* Perfil del Profesional abajo */}
         <div className="mt-auto flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
           <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600">
-            MA
+            {userInitials}
           </div>
           <div>
-            <p className="font-bold text-sm text-slate-800">Manuel Amelong</p>
+            <p className="font-bold text-sm text-slate-800 truncate w-32">{userName}</p>
             <p className="text-xs text-slate-500">Kinesiólogo</p>
           </div>
         </div>
