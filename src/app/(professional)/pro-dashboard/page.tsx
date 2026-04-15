@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 interface Appointment {
-  id: number;
+  id: string;
   patient: string;
   time: string;
   type: string;
@@ -17,19 +17,50 @@ export default function ProfessionalDashboard() {
   const [userName, setUserName] = useState('Profesional');
   const [loading, setLoading] = useState(true);
 
-  // Estados reales (vacíos para una cuenta nueva)
-  const [appointments] = useState<Appointment[]>([]);
-  const [stats] = useState({ today: 0, activePatients: 0, routines: 0 });
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [stats, setStats] = useState({ today: 0, activePatients: 0, routines: 0 });
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.full_name) {
+      if (!user) return;
+      
+      if (user.user_metadata?.full_name) {
         setUserName(user.user_metadata.full_name.split(' ')[0]);
       }
+
+      // Obtener los turnos de este profesional
+      const { data: apts } = await supabase
+        .from('Appointment')
+        .select(`
+          id,
+          date,
+          status,
+          notes,
+          Patient!Appointment_patientId_fkey ( name )
+        `)
+        .eq('professionalId', user.id)
+        .order('createdAt', { ascending: false });
+
+      if (apts) {
+        const loadedApts = apts.map((a: { id: string; status: string; notes: string; Patient: { name: string } | null }, idx: number) => {
+          const match = a.notes?.match(/Turno agendado: (.*) a las (.*)/);
+          return {
+            id: a.id || idx.toString(),
+            patient: a.Patient?.name || 'Paciente Nuevo',
+            time: match ? match[2] : 'Sin horario',
+            type: 'Consulta Inicial',
+            status: a.status,
+            color: 'bg-blue-100 text-blue-700'
+          };
+        });
+        setAppointments(loadedApts);
+        setStats(prev => ({ ...prev, today: loadedApts.length }));
+      }
+
       setLoading(false);
     };
-    fetchUser();
+    fetchData();
   }, []);
 
   if (loading) {

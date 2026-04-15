@@ -22,20 +22,43 @@ export default function PatientDashboard() {
   const [userName, setUserName] = useState('Paciente');
   const [loading, setLoading] = useState(true);
   
-  // Estados reales (vacíos por defecto para un usuario nuevo)
   const [routine] = useState<RoutineItem[]>([]);
-  const [nextSession] = useState<Session | null>(null);
+  const [nextSession, setNextSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.full_name) {
+      if (!user) return;
+      
+      if (user.user_metadata?.full_name) {
         setUserName(user.user_metadata.full_name.split(' ')[0]);
       }
-      // Simulando la carga desde la base de datos (vacía por ahora)
+
+      // Buscar el último turno
+      const { data: apts } = await supabase
+        .from('Appointment')
+        .select(`
+          date,
+          notes,
+          User!Appointment_professionalId_fkey ( name )
+        `)
+        .eq('patientId', user.id)
+        .order('createdAt', { ascending: false })
+        .limit(1);
+
+      if (apts && apts.length > 0) {
+        const apt = apts[0];
+        const match = apt.notes?.match(/Turno agendado: (.*) a las (.*)/);
+        setNextSession({
+          date: match ? match[1] : new Date(apt.date).toLocaleDateString(),
+          time: match ? match[2] : 'Por definir',
+          professionalName: (apt.User as { name?: string })?.name || 'Tu Kinesiólogo'
+        });
+      }
+      
       setLoading(false);
     };
-    fetchUser();
+    fetchData();
   }, []);
 
   if (loading) {
