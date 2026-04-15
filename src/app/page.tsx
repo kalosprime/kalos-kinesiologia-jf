@@ -1,4 +1,5 @@
 import { Calendar, Users, Activity, Clock, Plus, Search } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const appointments = [
@@ -19,18 +20,15 @@ export default function Dashboard() {
         </div>
         
         <nav className="flex flex-col gap-2">
-          <button className="flex items-center gap-3 px-4 py-3 bg-teal-50 text-teal-800 rounded-2xl font-medium transition-all">
+          <Link href="/" className="flex items-center gap-3 px-4 py-3 bg-teal-50 text-teal-800 rounded-2xl font-medium transition-all">
             <Calendar size={20} /> Dashboard
-          </button>
-          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
+          </Link>
+          <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
             <Users size={20} /> Pacientes
-          </button>
-          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
+          </Link>
+          <Link href="/patients/1" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
             <Activity size={20} /> Rutinas
-          </button>
-          <button className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
-            <Clock size={20} /> Historial
-          </button>
+          </Link>
         </nav>
       </aside>
 

@@ -1,4 +1,5 @@
 import { Search, Plus, UserPlus, MoreVertical, FileText, ClipboardList } from 'lucide-react';
+import Link from 'next/link';
 
 export default function PatientsPage() {
   const patients = [
@@ -15,9 +16,9 @@ export default function PatientsPage() {
           <h1 className="text-3xl font-bold text-slate-800">Gestor de Pacientes</h1>
           <p className="text-slate-500 mt-1">Administra tu base de datos clínica.</p>
         </div>
-        <button className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
+        <Link href="/patients/new" className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
           <UserPlus size={20} /> Nuevo Paciente
-        </button>
+        </Link>
       </header>
 
       <main className="max-w-6xl mx-auto">
@@ -66,12 +67,12 @@ export default function PatientsPage() {
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex gap-2">
-                      <button className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Ver Historial">
+                      <Link href={`/patients/${p.id}`} className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Ver Historial">
                         <FileText size={18} />
-                      </button>
-                      <button className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all" title="Ver Rutina">
+                      </Link>
+                      <Link href={`/patients/${p.id}`} className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all" title="Ver Rutina">
                         <ClipboardList size={18} />
-                      </button>
+                      </Link>
                       <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
                         <MoreVertical size={18} />
                       </button>
