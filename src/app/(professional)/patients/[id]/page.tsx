@@ -10,15 +10,12 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
 
   const patient = {
     id: params.id,
-    name: "Mateo Rossi",
-    age: 28,
-    condition: "Post-op Ligamento Cruzado Anterior",
-    lastSession: "12 Abril, 2024",
-    notes: "Evolución favorable. Persiste leve dolor en flexión máxima. Se recomienda iniciar carga progresiva en ejercicios mono-podales.",
-    history: [
-      { date: "10 Abril, 2024", note: "Sesión 4: Movilidad articular activa y pasiva." },
-      { date: "08 Abril, 2024", note: "Sesión 3: Control de inflamación y drenaje linfático." },
-    ]
+    name: "Cargando Paciente...",
+    age: "-",
+    condition: "Sin patología registrada",
+    lastSession: "-",
+    notes: "No hay notas de evolución registradas todavía.",
+    history: [] as { date: string, note: string }[]
   };
 
   return (

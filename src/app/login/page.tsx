@@ -35,7 +35,7 @@ export default function LoginPage() {
           router.push('/dashboard');
         }
       }
-    } catch (_error: unknown) {
+    } catch {
       setMessage('Error inesperado');
     } finally {
       setLoading(false);

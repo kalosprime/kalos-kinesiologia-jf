@@ -4,13 +4,26 @@ import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle, Activity } from 'luc
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+interface RoutineItem {
+  id: string;
+  name: string;
+  series: number;
+  reps: string;
+}
+
+interface Session {
+  date: string;
+  time: string;
+  professionalName: string;
+}
+
 export default function PatientDashboard() {
   const [userName, setUserName] = useState('Paciente');
   const [loading, setLoading] = useState(true);
   
   // Estados reales (vacíos por defecto para un usuario nuevo)
-  const [routine, setRoutine] = useState<any[]>([]);
-  const [nextSession, setNextSession] = useState<any>(null);
+  const [routine] = useState<RoutineItem[]>([]);
+  const [nextSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {

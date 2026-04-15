@@ -4,13 +4,22 @@ import { Users, Activity, Clock, Plus, Search, CalendarX } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+interface Appointment {
+  id: number;
+  patient: string;
+  time: string;
+  type: string;
+  status: string;
+  color: string;
+}
+
 export default function ProfessionalDashboard() {
   const [userName, setUserName] = useState('Profesional');
   const [loading, setLoading] = useState(true);
 
   // Estados reales (vacíos para una cuenta nueva)
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [stats, setStats] = useState({ today: 0, activePatients: 0, routines: 0 });
+  const [appointments] = useState<Appointment[]>([]);
+  const [stats] = useState({ today: 0, activePatients: 0, routines: 0 });
 
   useEffect(() => {
     const fetchUser = async () => {
