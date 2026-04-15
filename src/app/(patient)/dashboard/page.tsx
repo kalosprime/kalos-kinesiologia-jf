@@ -1,8 +1,9 @@
 'use client';
 
-import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle, Activity } from 'lucide-react';
+import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle, Activity, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 interface RoutineItem {
   id: string;
