@@ -49,7 +49,7 @@ export default function PatientLayout({
           <Home size={24} />
           <span className="text-[10px] font-bold mt-1">Inicio</span>
         </Link>
-        <Link href="#" className="flex flex-col items-center text-slate-400 hover:text-purple-500 transition-colors">
+        <Link href="/book" className="flex flex-col items-center text-slate-400 hover:text-purple-500 transition-colors">
           <Calendar size={24} />
           <span className="text-[10px] font-bold mt-1">Turnos</span>
         </Link>
