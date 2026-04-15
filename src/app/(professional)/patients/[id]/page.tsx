@@ -22,10 +22,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header con Back Button */}
-        <header className="mb-8 flex items-center justify-between">
+    <div className="max-w-6xl mx-auto">
+      {/* Header con Back Button */}
+      <header className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/patients" className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-teal-600 transition-all shadow-sm">
               <ArrowLeft size={20} />
@@ -118,6 +117,5 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
           )}
         </div>
       </div>
-    </div>
   );
 }

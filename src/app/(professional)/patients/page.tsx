@@ -10,8 +10,8 @@ export default function PatientsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] p-8">
-      <header className="flex justify-between items-center mb-10 max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto">
+      <header className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-3xl font-bold text-slate-800">Gestor de Pacientes</h1>
           <p className="text-slate-500 mt-1">Administra tu base de datos clínica.</p>

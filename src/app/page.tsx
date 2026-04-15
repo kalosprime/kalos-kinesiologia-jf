@@ -1,103 +1,38 @@
-import { Calendar, Users, Activity, Clock, Plus, Search } from 'lucide-react';
+import { Activity, User, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
 
-export default function Dashboard() {
-  const appointments = [
-    { id: 1, patient: "Mateo Rossi", time: "09:00", type: "Rehabilitación Rodilla", status: "Pendiente", color: "bg-blue-100 text-blue-700" },
-    { id: 2, patient: "Lucía Fernández", time: "10:30", type: "Post-operatorio", status: "Confirmado", color: "bg-green-100 text-green-700" },
-    { id: 3, patient: "Carlos Gómez", time: "11:45", type: "RPG", status: "En Camino", color: "bg-purple-100 text-purple-700" },
-  ];
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-[#fafafa] p-8 flex">
-      {/* Sidebar Simulado */}
-      <aside className="w-64 flex flex-col gap-6 mr-8">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-teal-200 rounded-xl flex items-center justify-center">
-            <Activity className="text-teal-800" />
-          </div>
-          <span className="font-bold text-xl tracking-tight">Kalos JF</span>
+    <div className="min-h-screen bg-teal-50/30 flex flex-col items-center justify-center p-6">
+      <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-700">
+        <div className="w-20 h-20 bg-teal-200 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-md shadow-teal-900/5">
+          <Activity className="text-teal-800" size={40} />
         </div>
-        
-        <nav className="flex flex-col gap-2">
-          <Link href="/" className="flex items-center gap-3 px-4 py-3 bg-teal-50 text-teal-800 rounded-2xl font-medium transition-all">
-            <Calendar size={20} /> Dashboard
-          </Link>
-          <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
-            <Users size={20} /> Pacientes
-          </Link>
-          <Link href="/patients/1" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-medium transition-all">
-            <Activity size={20} /> Rutinas
-          </Link>
-        </nav>
-      </aside>
+        <h1 className="text-4xl font-bold text-slate-800 tracking-tight">Kalos Kinesiología</h1>
+        <p className="text-slate-500 mt-2 font-medium text-lg">Selecciona tu portal de acceso</p>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-5xl">
-        <header className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">¡Hola, Profesional! 👋</h1>
-            <p className="text-slate-500 mt-1">Aquí tienes tus pacientes para hoy.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+        {/* Acceso Profesional */}
+        <Link href="/pro-dashboard" className="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 hover:shadow-teal-900/5 hover:border-teal-200 transition-all cursor-pointer relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform"></div>
+          <div className="w-16 h-16 bg-teal-100 rounded-3xl flex items-center justify-center mb-6 text-teal-700">
+            <Stethoscope size={32} />
           </div>
-          <button className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
-            <Plus size={20} /> Nuevo Turno
-          </button>
-        </header>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Soy Profesional</h2>
+          <p className="text-slate-500 font-medium">Gestiona tus pacientes, turnos y diseña rutinas de rehabilitación.</p>
+        </Link>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-6 mb-10">
-          {[
-            { label: 'Turnos de Hoy', val: '8', icon: <Clock />, color: 'bg-teal-100' },
-            { label: 'Pacientes Activos', val: '24', icon: <Users />, color: 'bg-purple-100' },
-            { label: 'Rutinas Creadas', val: '156', icon: <Activity />, color: 'bg-orange-100' }
-          ].map((stat, i) => (
-            <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-              <div className={`${stat.color} p-4 rounded-2xl`}>{stat.icon}</div>
-              <div>
-                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-                <p className="text-2xl font-bold text-slate-800">{stat.val}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Appointments Section */}
-        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-slate-800">Próximos Turnos</h2>
-            <div className="flex items-center bg-slate-50 px-4 py-2 rounded-xl">
-              <Search size={16} className="text-slate-400 mr-2" />
-              <input type="text" placeholder="Buscar paciente..." className="bg-transparent outline-none text-sm text-slate-600" />
-            </div>
+        {/* Acceso Paciente */}
+        <Link href="/dashboard" className="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/20 hover:shadow-purple-900/5 hover:border-purple-200 transition-all cursor-pointer relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform"></div>
+          <div className="w-16 h-16 bg-purple-100 rounded-3xl flex items-center justify-center mb-6 text-purple-700">
+            <User size={32} />
           </div>
-          
-          <div className="p-0">
-            {appointments.map((apt) => (
-              <div key={apt.id} className="flex items-center justify-between p-6 hover:bg-slate-50 transition-colors border-b last:border-0 border-slate-50">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-600">
-                    {apt.patient[0]}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800">{apt.patient}</h3>
-                    <p className="text-xs text-slate-500 font-medium">{apt.type}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-8">
-                  <div className="flex items-center gap-2 text-slate-500">
-                    <Clock size={16} />
-                    <span className="text-sm font-semibold">{apt.time}</span>
-                  </div>
-                  <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${apt.color}`}>
-                    {apt.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Soy Paciente</h2>
+          <p className="text-slate-500 font-medium">Revisa tus próximos turnos y sigue tu rutina de ejercicios en casa.</p>
+        </Link>
+      </div>
     </div>
   );
 }

@@ -5,9 +5,8 @@ import Link from 'next/link';
 
 export default function NewPatientPage() {
   return (
-    <div className="min-h-screen bg-[#fafafa] p-8">
-      <div className="max-w-2xl mx-auto">
-        <header className="mb-8 flex items-center gap-6">
+    <div className="max-w-2xl mx-auto">
+      <header className="mb-8 flex items-center gap-6">
           <Link href="/patients" className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-teal-600 transition-all shadow-sm">
             <ArrowLeft size={20} />
           </Link>
@@ -61,7 +60,6 @@ export default function NewPatientPage() {
             <Save size={20} /> Crear Paciente
           </button>
         </form>
-      </div>
     </div>
   );
 }
