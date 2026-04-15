@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Calendar, FileText, ClipboardList, Activity } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, Activity } from 'lucide-react';
 import Link from 'next/link';
 import RoutineBuilder from '@/components/RoutineBuilder';
 import { useState } from 'react';
@@ -88,7 +88,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                     <FileText className="text-teal-500" /> Nota de Evolución
                   </h3>
                   <div className="p-6 bg-teal-50/50 rounded-2xl border border-teal-100/50 text-slate-700 italic leading-relaxed">
-                    "{patient.notes}"
+                    &quot;{patient.notes}&quot;
                   </div>
                 </div>
 

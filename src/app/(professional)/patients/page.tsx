@@ -1,4 +1,4 @@
-import { Search, Plus, UserPlus, MoreVertical, FileText, ClipboardList } from 'lucide-react';
+import { Search, UserPlus, MoreVertical, FileText, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PatientsPage() {

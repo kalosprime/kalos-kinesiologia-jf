@@ -20,7 +20,7 @@ export default function RegisterPage() {
 
     try {
       // 1. Crear el usuario en Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -36,8 +36,8 @@ export default function RegisterPage() {
       } else {
         setMessage('¡Cuenta creada con éxito! Ahora puedes iniciar sesión.');
       }
-    } catch (error: any) {
-      setMessage('Error inesperado: ' + error.message);
+    } catch (error: unknown) {
+      setMessage('Error inesperado: ' + (error instanceof Error ? error.message : 'Desconocido'));
     } finally {
       setLoading(false);
     }

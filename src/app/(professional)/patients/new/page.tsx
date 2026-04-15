@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, UserPlus, Save } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewPatientPage() {

@@ -1,9 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Plus, Trash2, Save, Dumbbell, ChevronRight } from 'lucide-react';
+import { Search, Plus, Trash2, Save, Dumbbell } from 'lucide-react';
 
-const GLOBAL_EXERCISES = [
+interface Exercise {
+  id: string;
+  name: string;
+  group: string;
+  color: string;
+  series?: number;
+  reps?: string;
+}
+
+const GLOBAL_EXERCISES: Exercise[] = [
   { id: '1', name: 'Sentadilla Mono-podal', group: 'Cuádriceps', color: 'bg-green-100 text-green-700' },
   { id: '2', name: 'Plancha Abdominal', group: 'Core', color: 'bg-blue-100 text-blue-700' },
   { id: '3', name: 'Puente de Glúteo', group: 'Cadera', color: 'bg-purple-100 text-purple-700' },
@@ -12,10 +21,10 @@ const GLOBAL_EXERCISES = [
 ];
 
 export default function RoutineBuilder() {
-  const [selectedExercises, setSelectedExercises] = useState<any[]>([]);
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const addExercise = (ex: any) => {
+  const addExercise = (ex: Exercise) => {
     if (!selectedExercises.find(e => e.id === ex.id)) {
       setSelectedExercises([...selectedExercises, { ...ex, series: 3, reps: '12' }]);
     }
@@ -76,7 +85,7 @@ export default function RoutineBuilder() {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {selectedExercises.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-4 opacity-50">
-              <ClipboardList size={64} strokeWidth={1} />
+              <ClipboardListIcon size={64} strokeWidth={1} />
               <p className="font-medium">Aún no has añadido ejercicios</p>
             </div>
           ) : (
@@ -113,8 +122,8 @@ export default function RoutineBuilder() {
   );
 }
 
-function ClipboardList(props: any) {
+function ClipboardListIcon(props: React.SVGProps<SVGSVGElement> & { size?: number }) {
   return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
   );
 }
