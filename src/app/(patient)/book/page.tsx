@@ -136,12 +136,16 @@ export default function BookAppointmentPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Debes iniciar sesión para sacar un turno.');
 
-      // Generar ID único seguro
+      // Combinamos la fecha seleccionada con la hora elegida
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const exactAppointmentDate = new Date(selectedDate);
+      exactAppointmentDate.setHours(hours, minutes, 0, 0);
+
       const appointmentId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
       const { error } = await supabase.from('Appointment').insert({
         id: appointmentId,
-        date: selectedDate.toISOString(),
+        date: exactAppointmentDate.toISOString(), // Guardamos DIA + HORA REAL
         status: 'PENDIENTE',
         professionalId: selectedPro.id,
         patientId: user.id,
