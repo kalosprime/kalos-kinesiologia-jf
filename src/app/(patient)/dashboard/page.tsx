@@ -1,7 +1,7 @@
 'use client';
 
-import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle, Activity, Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CalendarClock, Dumbbell, CheckCircle2, PlayCircle, Activity, Plus, XCircle } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
@@ -13,6 +13,7 @@ interface RoutineItem {
 }
 
 interface Session {
+  id: string;
   date: string;
   time: string;
   professionalName: string;
@@ -21,53 +22,81 @@ interface Session {
 export default function PatientDashboard() {
   const [userName, setUserName] = useState('Paciente');
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
   
   const [routine] = useState<RoutineItem[]>([]);
   const [nextSession, setNextSession] = useState<Session | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    if (user.user_metadata?.full_name) {
+      setUserName(user.user_metadata.full_name.split(' ')[0]);
+    }
+
+    // Buscar el último turno PENDIENTE
+    const { data: apts, error } = await supabase
+      .from('Appointment')
+      .select(`
+        id,
+        date,
+        notes,
+        User!Appointment_professionalId_fkey ( name )
+      `)
+      .eq('patientId', user.id)
+      .eq('status', 'PENDIENTE')
+      .order('createdAt', { ascending: false })
+      .limit(1);
+
+    if (error) console.error('Error fetching patient appointment:', error);
+
+    if (apts && apts.length > 0) {
+      const apt = apts[0];
+      const match = apt.notes?.match(/Turno agendado: (.*) a las (.*)/);
       
-      if (user.user_metadata?.full_name) {
-        setUserName(user.user_metadata.full_name.split(' ')[0]);
-      }
-
-      // Buscar el último turno
-      const { data: apts, error } = await supabase
-        .from('Appointment')
-        .select(`
-          date,
-          notes,
-          User!Appointment_professionalId_fkey ( name )
-        `)
-        .eq('patientId', user.id)
-        .order('createdAt', { ascending: false })
-        .limit(1);
-
-      if (error) console.error('Error fetching patient appointment:', error);
-
-      if (apts && apts.length > 0) {
-        const apt = apts[0];
-        const match = apt.notes?.match(/Turno agendado: (.*) a las (.*)/);
-        
-        // Manejar si User es objeto o arreglo
-        const userData = Array.isArray(apt.User) ? apt.User[0] : apt.User;
-        
-        setNextSession({
-          date: match ? match[1] : new Date(apt.date).toLocaleDateString(),
-          time: match ? match[2] : 'Por definir',
-          professionalName: (userData as { name: string })?.name || 'Tu Kinesiólogo'
-        });
-      }
+      // Manejar si User es objeto o arreglo
+      const userData = Array.isArray(apt.User) ? apt.User[0] : apt.User;
       
-      setLoading(false);
-    };
-    fetchData();
+      setNextSession({
+        id: apt.id,
+        date: match ? match[1] : new Date(apt.date).toLocaleDateString(),
+        time: match ? match[2] : 'Por definir',
+        professionalName: (userData as { name?: string })?.name || 'Tu Kinesiólogo'
+      });
+    } else {
+      setNextSession(null);
+    }
+    
+    setLoading(false);
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    const load = async () => {
+      await fetchData();
+    };
+    load();
+  }, [fetchData]);
+
+  const handleCancel = async () => {
+    if (!nextSession || !confirm('¿Estás seguro de que deseas cancelar este turno?')) return;
+    
+    setCancelling(true);
+    const { error } = await supabase
+      .from('Appointment')
+      .update({ status: 'CANCELADO' })
+      .eq('id', nextSession.id);
+
+    if (!error) {
+      fetchData();
+    } else {
+      alert('Error al cancelar: ' + error.message);
+    }
+    setCancelling(false);
+  };
+
+  if (loading && !cancelling) {
     return <div className="min-h-screen flex items-center justify-center text-purple-600"><Activity className="animate-spin" /></div>;
   }
 
@@ -81,17 +110,25 @@ export default function PatientDashboard() {
 
       {/* Próximo Turno */}
       {nextSession ? (
-        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-[2rem] p-6 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-[2rem] p-6 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-purple-100 font-medium mb-1">Próxima Sesión</p>
+              <p className="text-purple-100 font-medium mb-1 text-sm uppercase tracking-wider">Próxima Sesión</p>
               <h2 className="text-2xl font-bold mb-4">{nextSession.date}</h2>
               <div className="flex items-center gap-2 bg-white/20 w-fit px-4 py-2 rounded-xl backdrop-blur-md">
                 <CalendarClock size={18} className="text-purple-100" />
                 <span className="font-bold">{nextSession.time}</span>
               </div>
             </div>
+            <button 
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="w-10 h-10 bg-white/10 hover:bg-red-500/20 rounded-xl flex items-center justify-center backdrop-blur-md transition-all text-purple-100 hover:text-white border border-white/10"
+              title="Cancelar Turno"
+            >
+              <XCircle size={24} />
+            </button>
           </div>
           <p className="mt-6 text-sm text-purple-100 flex items-center gap-2">
             👨‍⚕️ Kinesiólogo: <span className="font-bold text-white">{nextSession.professionalName}</span>

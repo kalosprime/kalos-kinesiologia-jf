@@ -114,6 +114,12 @@ export default function BookAppointmentPage() {
     });
 
     if (!error) {
+      // 2. Vincular automáticamente al paciente con este profesional si aún no lo está
+      await supabase
+        .from('Patient')
+        .update({ professionalId: selectedPro.id })
+        .eq('id', user.id);
+
       setStep(4);
     } else {
       alert('Hubo un problema: ' + error.message);
