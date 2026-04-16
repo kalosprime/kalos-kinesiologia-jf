@@ -3,7 +3,7 @@
 import { ArrowLeft, Calendar, FileText, Activity, Save, Edit3 } from 'lucide-react';
 import Link from 'next/link';
 import RoutineBuilder from '@/components/RoutineBuilder';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useSearchParams } from 'next/navigation';
 
@@ -16,7 +16,8 @@ interface Patient {
   lastSession: string;
 }
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
+export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get('tab') === 'rutina' ? 'rutina' : 'historial';
   
@@ -26,60 +27,68 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   const [isEditing, setIsEditing] = useState(false);
   
   const [patient, setPatient] = useState<Patient>({
-    id: params.id,
+    id: resolvedParams.id,
     name: "Cargando...",
     lastSession: "-"
   });
 
   const fetchPatient = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('Patient')
-      .select('*')
-      .eq('id', params.id)
-      .single();
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('Patient')
+        .select('*')
+        .eq('id', resolvedParams.id)
+        .single();
 
-    if (error) {
-      console.error('Error fetching patient details:', error);
-      return;
+      if (error) {
+        console.error('Error fetching patient details:', error);
+      } else if (data) {
+        setPatient({
+          ...data,
+          lastSession: new Date(data.updatedAt).toLocaleDateString()
+        });
+      }
+    } catch (err) {
+      console.error('Unexpected error in fetchPatient:', err);
+    } finally {
+      setLoading(false); // IMPORTANTE: Siempre cerramos el estado de carga
     }
-
-    if (data) {
-      setPatient({
-        ...data,
-        lastSession: new Date(data.updatedAt).toLocaleDateString()
-      });
-    }
-    setLoading(false);
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   useEffect(() => {
-    const loadPatient = async () => {
-      await fetchPatient();
-    };
-    loadPatient();
+    fetchPatient();
   }, [fetchPatient]);
 
   const handleSaveHistory = async () => {
     setSaving(true);
-    const { error } = await supabase
-      .from('Patient')
-      .update({ 
-        clinicalHistory: patient.clinicalHistory,
-        updatedAt: new Date().toISOString()
-      })
-      .eq('id', params.id);
+    try {
+      const { error } = await supabase
+        .from('Patient')
+        .update({ 
+          clinicalHistory: patient.clinicalHistory,
+          updatedAt: new Date().toISOString()
+        })
+        .eq('id', resolvedParams.id);
 
-    if (!error) {
-      setIsEditing(false);
-      fetchPatient();
-    } else {
-      alert('Error al guardar: ' + error.message);
+      if (!error) {
+        setIsEditing(false);
+        await fetchPatient();
+      } else {
+        alert('Error al guardar: ' + error.message);
+      }
+    } catch (err) {
+      alert('Error inesperado al guardar');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-teal-600"><Activity className="animate-spin" /></div>;
+    return <div className="min-h-screen flex items-center justify-center text-teal-600 font-bold flex-col gap-4">
+      <Activity className="animate-spin" size={40} />
+      <p>Cargando perfil del paciente...</p>
+    </div>;
   }
 
   return (
@@ -189,7 +198,7 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <RoutineBuilder patientId={params.id} />
+              <RoutineBuilder patientId={resolvedParams.id} />
             </div>
           )}
         </div>

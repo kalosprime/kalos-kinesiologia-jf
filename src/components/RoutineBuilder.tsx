@@ -22,16 +22,24 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
 
   useEffect(() => {
     const fetchExercises = async () => {
-      const { data } = await supabase.from('Exercise').select('*');
-      if (data) {
-        const formatted = data.map((e: { id: string; name: string; muscleGroup: string }) => ({
-          id: e.id,
-          name: e.name,
-          muscleGroup: e.muscleGroup
-        }));
-        setCatalog(formatted);
+      try {
+        setLoading(true);
+        const { data, error } = await supabase.from('Exercise').select('*');
+        if (error) {
+          console.error('Error fetching exercises:', error);
+        } else if (data) {
+          const formatted = data.map((e: { id: string; name: string; muscleGroup: string }) => ({
+            id: e.id,
+            name: e.name,
+            muscleGroup: e.muscleGroup
+          }));
+          setCatalog(formatted);
+        }
+      } catch (err) {
+        console.error('Unexpected error in RoutineBuilder:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchExercises();
   }, []);

@@ -19,22 +19,30 @@ export default function ProfessionalLayout({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user || user.user_metadata?.role !== 'professional') {
-        setIsAuthorized(false);
-        router.push('/login');
-        return;
-      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Verificamos el rol guardado en la metadata del usuario de Supabase Auth
+        if (!user || user.user_metadata?.role !== 'professional') {
+          console.log('Usuario no autorizado para el panel profesional');
+          setIsAuthorized(false);
+          router.push('/login');
+          return;
+        }
 
-      setIsAuthorized(true);
-      const fullName = user.user_metadata.full_name || 'Profesional';
-      setUserName(fullName);
-      const splitName = fullName.split(' ');
-      if (splitName.length > 1) {
-        setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
-      } else {
-        setUserInitials(fullName.substring(0, 2).toUpperCase());
+        // Si es profesional, cargamos sus datos reales
+        setIsAuthorized(true);
+        const fullName = user.user_metadata.full_name || 'Kinesiólogo';
+        setUserName(fullName);
+        const splitName = fullName.split(' ');
+        if (splitName.length > 1) {
+          setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
+        } else {
+          setUserInitials(fullName.substring(0, 2).toUpperCase());
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        router.push('/login');
       }
     };
     checkAuth();
