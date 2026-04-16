@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 export default function PatientLayout({
   children,
@@ -12,6 +13,7 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const [userInitials, setUserInitials] = useState('P');
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -29,44 +31,52 @@ export default function PatientLayout({
     fetchUser();
   }, []);
 
+  const navItems = [
+    { href: '/dashboard', icon: <Home size={24} />, label: 'Inicio' },
+    { href: '/book', icon: <Calendar size={24} />, label: 'Turnos' },
+    { href: '#', icon: <Dumbbell size={24} />, label: 'Mi Rutina' },
+    { href: '#', icon: <User size={24} />, label: 'Perfil' },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
-      {/* Top Header para móvil */}
-      <header className="bg-white p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10 md:hidden">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
-            <Image src="/logo-kalos.jpg" alt="Logo" width={32} height={32} className="object-cover" />
+    <div className="min-h-screen bg-[#050505] text-white pb-24 md:pb-0">
+      {/* Top Header Pro */}
+      <header className="bg-black/80 backdrop-blur-xl border-b border-white/5 p-5 sticky top-0 z-30 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+            <Image src="/logo-kalos.jpg" alt="Logo" width={40} height={40} className="object-cover" />
           </div>
-          <span className="font-bold text-xl tracking-tight text-slate-800">Kalos<span className="text-purple-600">JF</span></span>
+          <div className="flex flex-col leading-none">
+            <span className="font-black text-lg tracking-tighter">KALOS</span>
+            <span className="text-emerald-500 font-bold text-[8px] tracking-[0.3em] uppercase">PACIENTES</span>
+          </div>
         </div>
-        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">
+        <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-black font-black text-xs shadow-lg shadow-emerald-500/20">
           {userInitials}
         </div>
       </header>
 
       {/* Contenido Principal */}
-      <main className="max-w-3xl mx-auto p-4 md:p-8">
+      <main className="max-w-3xl mx-auto p-6 md:p-12 animate-in fade-in duration-700">
         {children}
       </main>
 
-      {/* Bottom Navigation para móvil (Sidebar en Desktop) */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-slate-100 px-6 py-4 flex justify-between items-center md:hidden z-20">
-        <Link href="/dashboard" className="flex flex-col items-center text-purple-600">
-          <Home size={24} />
-          <span className="text-[10px] font-bold mt-1">Inicio</span>
-        </Link>
-        <Link href="/book" className="flex flex-col items-center text-slate-400 hover:text-purple-500 transition-colors">
-          <Calendar size={24} />
-          <span className="text-[10px] font-bold mt-1">Turnos</span>
-        </Link>
-        <Link href="#" className="flex flex-col items-center text-slate-400 hover:text-purple-500 transition-colors">
-          <Dumbbell size={24} />
-          <span className="text-[10px] font-bold mt-1">Mi Rutina</span>
-        </Link>
-        <Link href="#" className="flex flex-col items-center text-slate-400 hover:text-purple-500 transition-colors">
-          <User size={24} />
-          <span className="text-[10px] font-bold mt-1">Perfil</span>
-        </Link>
+      {/* Bottom Nav Pro */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-black/60 backdrop-blur-2xl border border-white/10 px-8 py-4 rounded-[2rem] flex justify-between items-center z-40 shadow-2xl shadow-emerald-500/5">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link 
+              key={item.label}
+              href={item.href} 
+              className={`flex flex-col items-center transition-all duration-300 ${isActive ? 'text-emerald-500 scale-110' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              {item.icon}
+              <span className="text-[10px] font-bold mt-1 uppercase tracking-widest">{item.label}</span>
+              {isActive && <div className="w-1 h-1 bg-emerald-500 rounded-full mt-1"></div>}
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

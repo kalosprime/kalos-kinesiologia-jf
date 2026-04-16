@@ -1,10 +1,10 @@
 'use client';
 
-import { Calendar, Users, Activity, Clock, Settings, Dumbbell } from 'lucide-react';
+import { Calendar, Users, Activity, Settings, Dumbbell, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 export default function ProfessionalLayout({
@@ -16,21 +16,19 @@ export default function ProfessionalLayout({
   const [userInitials, setUserInitials] = useState('PR');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Verificamos el rol guardado en la metadata del usuario de Supabase Auth
         if (!user || user.user_metadata?.role !== 'professional') {
-          console.log('Usuario no autorizado para el panel profesional');
           setIsAuthorized(false);
           router.push('/login');
           return;
         }
 
-        // Si es profesional, cargamos sus datos reales
         setIsAuthorized(true);
         const fullName = user.user_metadata.full_name || 'Kinesiólogo';
         setUserName(fullName);
@@ -48,56 +46,85 @@ export default function ProfessionalLayout({
     checkAuth();
   }, [router]);
 
-  if (isAuthorized === null) return <div className="min-h-screen flex items-center justify-center text-teal-600"><Activity className="animate-spin" /></div>;
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
+  if (isAuthorized === null) return <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-emerald-500 font-bold flex-col gap-4">
+    <Activity className="animate-spin" size={40} />
+    <p className="tracking-widest uppercase text-xs">Iniciando Sistema...</p>
+  </div>;
+  
   if (isAuthorized === false) return null;
+
+  const navItems = [
+    { href: '/pro-dashboard', icon: <Calendar size={20} />, label: 'Dashboard' },
+    { href: '/patients', icon: <Users size={20} />, label: 'Pacientes' },
+    { href: '/exercises', icon: <Dumbbell size={20} />, label: 'Catálogo' },
+    { href: '/settings', icon: <Settings size={20} />, label: 'Configuración' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex">
-      {/* Menú Lateral Fijo */}
-      <aside className="w-64 flex flex-col gap-6 p-8 border-r border-slate-100 bg-white/50 backdrop-blur-sm fixed h-screen">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm overflow-hidden border border-slate-100">
-            <Image src="/logo-kalos.jpg" alt="Logo" width={48} height={48} className="object-cover" />
+      {/* Sidebar Kalos Pro */}
+      <aside className="w-72 bg-[#0a0a0a] flex flex-col fixed h-screen z-20 shadow-2xl">
+        <div className="p-8">
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/10 overflow-hidden border border-white/5">
+              <Image src="/logo-kalos.jpg" alt="Logo" width={48} height={48} className="object-cover" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-xl tracking-tighter text-white leading-none">KALOS</span>
+              <span className="text-emerald-500 font-bold text-[10px] tracking-[0.3em] uppercase leading-none mt-1">SISTEMAS</span>
+            </div>
           </div>
-          <span className="font-bold text-2xl tracking-tight text-slate-800">Kalos<span className="text-teal-600">JF</span></span>
+          
+          <nav className="flex flex-col gap-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/pro-dashboard' && pathname.startsWith(item.href));
+              return (
+                <Link 
+                  key={item.href}
+                  href={item.href} 
+                  className={`flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                    isActive 
+                      ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' 
+                      : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                  }`}
+                >
+                  {item.icon} {item.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-        
-        <nav className="flex flex-col gap-2">
-          <Link href="/pro-dashboard" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
-            <Calendar size={20} /> Dashboard
-          </Link>
-          <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
-            <Users size={20} /> Mis Pacientes
-          </Link>
-          <Link href="/exercises" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
-            <Dumbbell size={20} /> Catálogo de Ejercicios
-          </Link>
-          <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
-            <Activity size={20} /> Rutinas
-          </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all opacity-50 cursor-not-allowed">
-            <Clock size={20} /> Historial
-          </Link>
-          <Link href="/settings" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all mt-4">
-            <Settings size={20} /> Configuración
-          </Link>
-        </nav>
 
-        {/* Perfil del Profesional abajo */}
-        <div className="mt-auto flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
-          <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600">
-            {userInitials}
+        {/* Perfil Pro abajo */}
+        <div className="mt-auto p-6 border-t border-white/5 bg-black/40 backdrop-blur-md">
+          <div className="flex items-center gap-3 p-4 bg-white/5 rounded-[1.5rem] mb-4">
+            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center font-black text-black text-sm">
+              {userInitials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm text-white truncate">{userName}</p>
+              <p className="text-[10px] text-emerald-500 font-black uppercase tracking-wider">Kinesiólogo</p>
+            </div>
           </div>
-          <div>
-            <p className="font-bold text-sm text-slate-800 truncate w-32">{userName}</p>
-            <p className="text-xs text-slate-500">Kinesiólogo</p>
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-3 text-slate-500 hover:text-red-400 font-bold text-xs transition-colors"
+          >
+            <LogOut size={16} /> Cerrar Sesión
+          </button>
         </div>
       </aside>
 
-      {/* Contenido Principal (Lo que cambia al navegar) */}
-      <main className="flex-1 ml-64 p-8">
-        {children}
+      {/* Contenido Principal */}
+      <main className="flex-1 ml-72 p-10 min-h-screen">
+        <div className="max-w-6xl mx-auto animate-in fade-in duration-700">
+          {children}
+        </div>
       </main>
     </div>
   );

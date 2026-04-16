@@ -123,88 +123,97 @@ export default function PatientDashboard() {
   };
 
   if (loading && !cancelling) {
-    return <div className="min-h-screen flex items-center justify-center text-purple-600"><Activity className="animate-spin" /></div>;
+    return <div className="min-h-[80vh] flex items-center justify-center text-emerald-500 font-bold flex-col gap-4">
+      <Activity className="animate-spin" size={32} />
+      <p className="text-xs tracking-[0.2em] uppercase">Preparando tu sesión...</p>
+    </div>;
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Saludo */}
+    <div className="space-y-10">
+      {/* Saludo Elite */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Hola, {userName} 👋</h1>
-        <p className="text-slate-500 mt-2">Aquí tienes tu plan de rehabilitación.</p>
+        <div className="flex items-center gap-2 text-emerald-500 font-bold text-[10px] uppercase tracking-[0.3em] mb-2">
+          <Activity size={12} /> Plan de Alto Rendimiento
+        </div>
+        <h1 className="text-4xl font-black text-white tracking-tighter">Hola, {userName}</h1>
+        <p className="text-slate-500 mt-2 font-medium">Tu progreso es nuestra prioridad.</p>
       </div>
 
-      {/* Próximo Turno */}
+      {/* Próximo Turno Premium */}
       {nextSession ? (
-        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-[2rem] p-6 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
+        <div className="bg-[#111] rounded-[2.5rem] p-8 border border-white/5 shadow-2xl relative overflow-hidden group border-l-4 border-l-emerald-500">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-[100px] -z-0"></div>
           <div className="flex items-start justify-between relative z-10">
-            <div>
-              <p className="text-purple-100 font-medium mb-1 text-sm uppercase tracking-wider">Próxima Sesión</p>
-              <h2 className="text-2xl font-bold mb-4">{nextSession.date}</h2>
-              <div className="flex items-center gap-2 bg-white/20 w-fit px-4 py-2 rounded-xl backdrop-blur-md">
-                <CalendarClock size={18} className="text-purple-100" />
-                <span className="font-bold">{nextSession.time}</span>
+            <div className="space-y-6">
+              <div>
+                <p className="text-emerald-500 font-black text-[10px] uppercase tracking-[0.2em] mb-4">Próxima Sesión</p>
+                <h2 className="text-3xl font-black text-white">{nextSession.date}</h2>
+              </div>
+              <div className="flex items-center gap-2 bg-emerald-500 text-black w-fit px-6 py-3 rounded-2xl font-black shadow-lg shadow-emerald-500/20">
+                <CalendarClock size={20} />
+                <span>{nextSession.time}</span>
               </div>
             </div>
             <button 
               onClick={handleCancel}
               disabled={cancelling}
-              className="w-10 h-10 bg-white/10 hover:bg-red-500/20 rounded-xl flex items-center justify-center backdrop-blur-md transition-all text-purple-100 hover:text-white border border-white/10"
-              title="Cancelar Turno"
+              className="w-12 h-12 bg-white/5 hover:bg-red-500/20 rounded-2xl flex items-center justify-center transition-all text-slate-500 hover:text-red-500 border border-white/5"
             >
               <XCircle size={24} />
             </button>
           </div>
-          <p className="mt-6 text-sm text-purple-100 flex items-center gap-2">
-            👨‍⚕️ Kinesiólogo: <span className="font-bold text-white">{nextSession.professionalName}</span>
+          <p className="mt-8 text-sm text-slate-500 font-bold flex items-center gap-2 pt-6 border-t border-white/5">
+            KINESIÓLOGO: <span className="text-white uppercase tracking-wider">{nextSession.professionalName}</span>
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm text-center">
-          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-            <CalendarClock size={32} />
+        <div className="bg-[#111] rounded-[2.5rem] p-10 border border-white/5 text-center flex flex-col items-center">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 text-slate-600">
+            <CalendarClock size={40} strokeWidth={1} />
           </div>
-          <h2 className="text-xl font-bold text-slate-800">Sin turnos próximos</h2>
-          <p className="text-slate-500 mt-2 text-sm mb-6">Tu kinesiólogo aún no ha programado tu próxima sesión.</p>
-          <Link href="/book" className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-6 py-3 rounded-xl font-bold transition-all inline-flex items-center gap-2">
-            <Plus size={18} /> Agendar un Turno
+          <h2 className="text-xl font-bold text-white mb-2">Sin turnos agendados</h2>
+          <p className="text-slate-500 text-sm mb-8 max-w-[200px]">Agenda tu próxima sesión para continuar tu progreso.</p>
+          <Link href="/book" className="bg-emerald-500 hover:bg-emerald-400 text-black px-10 py-4 rounded-2xl font-black transition-all shadow-lg shadow-emerald-500/10 active:scale-95 flex items-center gap-2">
+            <Plus size={20} strokeWidth={3} /> AGENDAR TURNO
           </Link>
         </div>
       )}
 
-      {/* Rutina Asignada */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Dumbbell className="text-purple-500" /> Mi Rutina de Hoy
+      {/* Rutina de Entrenamiento Pro */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            <Dumbbell className="text-emerald-500" /> Mi Rutina
           </h2>
-          <span className="text-xs font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
+          <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-4 py-1.5 rounded-full uppercase tracking-widest border border-emerald-500/20">
             {routine.length} Ejercicios
           </span>
         </div>
 
         <div className="space-y-4">
           {routine.length === 0 ? (
-            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center flex flex-col items-center">
-               <Dumbbell size={48} className="text-slate-200 mb-4" strokeWidth={1} />
-               <p className="font-bold text-slate-700">No hay rutina asignada</p>
-               <p className="text-slate-500 text-sm mt-1">Pronto tu profesional te asignará los ejercicios.</p>
+            <div className="bg-[#111] p-12 rounded-[2.5rem] border border-white/5 text-center flex flex-col items-center">
+               <Dumbbell size={48} className="text-slate-800 mb-4" strokeWidth={1} />
+               <p className="font-bold text-slate-500">No hay ejercicios asignados</p>
+               <p className="text-slate-600 text-xs mt-1">Pronto recibirás tu plan personalizado.</p>
             </div>
           ) : (
             routine.map((ex, i) => (
-              <div key={ex.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center font-bold text-slate-400">
+              <div key={ex.id} className="bg-[#111] p-6 rounded-3xl border border-white/5 flex items-center gap-5 hover:border-emerald-500/30 transition-all group">
+                <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center font-black text-slate-500 group-hover:text-emerald-500 group-hover:bg-emerald-500/10 transition-all text-xl">
                   {i + 1}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-slate-800">{ex.name}</h3>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {ex.series} series • {ex.reps}
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white text-lg truncate uppercase tracking-tight">{ex.name}</h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{ex.series} SERIES</span>
+                    <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ex.reps} REPS</span>
+                  </div>
                 </div>
-                <button className="w-10 h-10 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-full flex items-center justify-center transition-colors">
-                  <PlayCircle size={24} />
+                <button className="w-12 h-12 bg-white/5 hover:bg-emerald-500 text-slate-400 hover:text-black rounded-full flex items-center justify-center transition-all shadow-inner">
+                  <PlayCircle size={28} />
                 </button>
               </div>
             ))
@@ -212,8 +221,8 @@ export default function PatientDashboard() {
         </div>
 
         {routine.length > 0 && (
-          <button className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-2xl font-bold shadow-md shadow-purple-600/20 transition-all flex items-center justify-center gap-2">
-            <CheckCircle2 size={20} /> Marcar rutina completada
+          <button className="w-full mt-6 bg-emerald-500 hover:bg-emerald-400 text-black p-5 rounded-2xl font-black shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-3 text-lg active:scale-95 uppercase tracking-tighter">
+            <CheckCircle2 size={24} strokeWidth={3} /> Completar Entrenamiento
           </button>
         )}
       </div>
