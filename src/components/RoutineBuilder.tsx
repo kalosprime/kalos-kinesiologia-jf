@@ -59,7 +59,8 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
 
     try {
       // 1. Crear la cabecera de la rutina
-      const routineId = crypto.randomUUID();
+      const routineId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+      
       const { error: rError } = await supabase.from('Routine').insert({
         id: routineId,
         patientId: patientId,
@@ -67,11 +68,14 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
         updatedAt: new Date().toISOString()
       });
 
-      if (rError) throw rError;
+      if (rError) {
+        console.error('Supabase Routine Error:', rError);
+        throw new Error(rError.message);
+      }
 
       // 2. Insertar los ejercicios (RoutineItems)
       const items = selectedExercises.map(ex => ({
-        id: crypto.randomUUID(),
+        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2),
         routineId: routineId,
         exerciseId: ex.id,
         series: ex.series || 3,
@@ -79,11 +83,16 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
       }));
 
       const { error: iError } = await supabase.from('RoutineItem').insert(items);
-      if (iError) throw iError;
+      if (iError) {
+        console.error('Supabase RoutineItem Error:', iError);
+        throw new Error(iError.message);
+      }
 
       setMessage('¡Rutina guardada y asignada con éxito!');
     } catch (error: unknown) {
-      setMessage('Error al guardar: ' + (error instanceof Error ? error.message : 'Desconocido'));
+      const errorMsg = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Error desconocido');
+      console.error('Save routine error:', error);
+      setMessage('Error al guardar: ' + errorMsg);
     } finally {
       setSaving(false);
       setTimeout(() => setMessage(''), 3000);

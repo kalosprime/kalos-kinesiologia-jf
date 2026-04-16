@@ -24,10 +24,11 @@ export default function PatientsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Obtenemos los pacientes (en un futuro filtrados por professionalId)
+      // Obtenemos los pacientes filtrados por professionalId
       const { data, error } = await supabase
         .from('Patient')
         .select('*')
+        .eq('professionalId', user.id)
         .order('name', { ascending: true });
 
       if (error) console.error('Error fetching patients:', error);

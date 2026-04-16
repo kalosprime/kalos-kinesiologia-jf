@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Clock, Calendar as CalendarIcon, Settings, User as UserIcon, Activity } from 'lucide-react';
+import { Save, Calendar as CalendarIcon, Settings, User as UserIcon, Activity } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface DaySchedule {
