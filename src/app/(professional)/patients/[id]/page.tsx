@@ -28,11 +28,16 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
   });
 
   const fetchPatient = useCallback(async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('Patient')
       .select('*')
       .eq('id', params.id)
       .single();
+
+    if (error) {
+      console.error('Error fetching patient details:', error);
+      return;
+    }
 
     if (data) {
       setPatient({

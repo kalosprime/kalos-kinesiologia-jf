@@ -90,8 +90,11 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
 
       setMessage('¡Rutina guardada y asignada con éxito!');
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : (typeof error === 'string' ? error : 'Error desconocido');
       console.error('Save routine error:', error);
+      let errorMsg = 'Error de conexión con la base de datos';
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMsg = (error as { message: string }).message;
+      }
       setMessage('Error al guardar: ' + errorMsg);
     } finally {
       setSaving(false);

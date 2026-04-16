@@ -5,30 +5,43 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+import { useRouter } from 'next/navigation';
+
 export default function ProfessionalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [userName, setUserName] = useState('Manuel Amelong');
-  const [userInitials, setUserInitials] = useState('MA');
+  const [userName, setUserName] = useState('Profesional');
+  const [userInitials, setUserInitials] = useState('PR');
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.full_name) {
-        const fullName = user.user_metadata.full_name;
-        setUserName(fullName);
-        const splitName = fullName.split(' ');
-        if (splitName.length > 1) {
-          setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
-        } else {
-          setUserInitials(fullName.substring(0, 2).toUpperCase());
-        }
+      
+      if (!user || user.user_metadata?.role !== 'professional') {
+        setIsAuthorized(false);
+        router.push('/login');
+        return;
+      }
+
+      setIsAuthorized(true);
+      const fullName = user.user_metadata.full_name || 'Profesional';
+      setUserName(fullName);
+      const splitName = fullName.split(' ');
+      if (splitName.length > 1) {
+        setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
+      } else {
+        setUserInitials(fullName.substring(0, 2).toUpperCase());
       }
     };
-    fetchUser();
-  }, []);
+    checkAuth();
+  }, [router]);
+
+  if (isAuthorized === null) return <div className="min-h-screen flex items-center justify-center text-teal-600"><Activity className="animate-spin" /></div>;
+  if (isAuthorized === false) return null;
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex">
@@ -48,8 +61,8 @@ export default function ProfessionalLayout({
           <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
             <Users size={20} /> Mis Pacientes
           </Link>
-          {/* El botón de Rutinas por ahora puede ir a un paciente de prueba o a un gestor global */}
-          <Link href="/patients/1" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
+          {/* Quitamos el enlace hardcodeado de Rutinas para evitar confusión */}
+          <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all opacity-50 cursor-not-allowed">
             <Activity size={20} /> Rutinas
           </Link>
           <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all opacity-50 cursor-not-allowed">
