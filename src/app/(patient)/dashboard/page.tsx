@@ -24,7 +24,7 @@ export default function PatientDashboard() {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   
-  const [routine] = useState<RoutineItem[]>([]);
+  const [routine, setRoutine] = useState<RoutineItem[]>([]);
   const [nextSession, setNextSession] = useState<Session | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -36,8 +36,8 @@ export default function PatientDashboard() {
       setUserName(user.user_metadata.full_name.split(' ')[0]);
     }
 
-    // Buscar el último turno PENDIENTE
-    const { data: apts, error } = await supabase
+    // 1. Buscar el último turno PENDIENTE
+    const { data: apts } = await supabase
       .from('Appointment')
       .select(`
         id,
@@ -50,13 +50,9 @@ export default function PatientDashboard() {
       .order('createdAt', { ascending: false })
       .limit(1);
 
-    if (error) console.error('Error fetching patient appointment:', error);
-
     if (apts && apts.length > 0) {
       const apt = apts[0];
       const match = apt.notes?.match(/Turno agendado: (.*) a las (.*)/);
-      
-      // Manejar si User es objeto o arreglo
       const userData = Array.isArray(apt.User) ? apt.User[0] : apt.User;
       
       setNextSession({
@@ -67,6 +63,36 @@ export default function PatientDashboard() {
       });
     } else {
       setNextSession(null);
+    }
+
+    // 2. Buscar la rutina activa
+    const { data: routines } = await supabase
+      .from('Routine')
+      .select(`
+        id,
+        RoutineItem (
+          id,
+          series,
+          reps,
+          Exercise ( name )
+        )
+      `)
+      .eq('patientId', user.id)
+      .eq('isActive', true)
+      .order('createdAt', { ascending: false })
+      .limit(1);
+
+    if (routines && routines.length > 0) {
+      const activeRoutine = routines[0];
+      const rawItems = activeRoutine.RoutineItem as unknown as Array<{ id: string, series: number, reps: string, Exercise: { name: string } | null }>;
+      
+      const items = rawItems.map(item => ({
+        id: item.id,
+        name: item.Exercise?.name || 'Ejercicio',
+        series: item.series,
+        reps: item.reps
+      }));
+      setRoutine(items);
     }
     
     setLoading(false);

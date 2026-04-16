@@ -66,6 +66,12 @@ export default function RoutineBuilder({ patientId }: { patientId: string }) {
     setMessage('');
 
     try {
+      // 0. Desactivar rutinas anteriores para este paciente
+      await supabase
+        .from('Routine')
+        .update({ isActive: false })
+        .eq('patientId', patientId);
+
       // 1. Crear la cabecera de la rutina
       const routineId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
       

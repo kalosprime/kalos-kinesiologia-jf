@@ -77,7 +77,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
       } else {
         alert('Error al guardar: ' + error.message);
       }
-    } catch (err) {
+    } catch {
       alert('Error inesperado al guardar');
     } finally {
       setSaving(false);
