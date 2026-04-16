@@ -3,9 +3,11 @@
 import { Users, Activity, Clock, Plus, Search, CalendarX } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 interface Appointment {
   id: string;
+  patientId: string;
   patient: string;
   time: string;
   type: string;
@@ -37,9 +39,10 @@ export default function ProfessionalDashboard() {
           date,
           status,
           notes,
-          Patient!Appointment_patientId_fkey ( name )
+          Patient!Appointment_patientId_fkey ( id, name )
         `)
         .eq('professionalId', user.id)
+        .neq('status', 'CANCELADO')
         .order('createdAt', { ascending: false });
 
       if (error) console.error('Error fetching pro appointments:', error);
@@ -49,11 +52,13 @@ export default function ProfessionalDashboard() {
           const match = a.notes?.match(/Turno agendado: (.*) a las (.*)/);
           
           // Manejar si Patient es un objeto o un arreglo (Supabase varía según la relación)
-          const patientData = Array.isArray(a.Patient) ? a.Patient[0] : a.Patient;
+          const pRaw: unknown = Array.isArray(a.Patient) ? a.Patient[0] : a.Patient;
+          const patientData = pRaw as { id: string, name: string } | null;
           
           return {
             id: a.id || idx.toString(),
-            patient: (patientData as { name: string })?.name || 'Paciente Nuevo',
+            patientId: patientData?.id || '',
+            patient: patientData?.name || 'Paciente Nuevo',
             time: match ? match[2] : 'Sin horario',
             type: 'Consulta Inicial',
             status: a.status,
@@ -80,15 +85,15 @@ export default function ProfessionalDashboard() {
           <h1 className="text-3xl font-bold text-slate-800">¡Hola, {userName}! 👋</h1>
           <p className="text-slate-500 mt-1">Aquí tienes el resumen de tu clínica hoy.</p>
         </div>
-        <button className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
-          <Plus size={20} /> Nuevo Turno
-        </button>
+        <Link href="/patients/new" className="bg-teal-200 hover:bg-teal-300 text-teal-900 px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all shadow-sm">
+          <Plus size={20} /> Nuevo Paciente
+        </Link>
       </header>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-6 mb-10">
         {[
-          { label: 'Turnos de Hoy', val: stats.today, icon: <Clock />, color: 'bg-teal-100' },
+          { label: 'Turnos Activos', val: stats.today, icon: <Clock />, color: 'bg-teal-100' },
           { label: 'Pacientes Activos', val: stats.activePatients, icon: <Users />, color: 'bg-purple-100' },
           { label: 'Rutinas Creadas', val: stats.routines, icon: <Activity />, color: 'bg-orange-100' }
         ].map((stat, i) => (
@@ -121,9 +126,13 @@ export default function ProfessionalDashboard() {
             </div>
           ) : (
             appointments.map((apt) => (
-              <div key={apt.id} className="flex items-center justify-between p-6 hover:bg-slate-50 transition-colors border-b last:border-0 border-slate-50">
+              <Link 
+                key={apt.id} 
+                href={`/patients/${apt.patientId}`}
+                className="flex items-center justify-between p-6 hover:bg-teal-50/50 transition-colors border-b last:border-0 border-slate-50 cursor-pointer"
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-600">
+                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-bold text-slate-600 text-lg uppercase">
                     {apt.patient[0]}
                   </div>
                   <div>
@@ -141,7 +150,7 @@ export default function ProfessionalDashboard() {
                     {apt.status}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
