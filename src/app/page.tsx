@@ -1,12 +1,14 @@
 import { Activity } from 'lucide-react';
 import Link from 'next/link';
 
+import Image from 'next/image';
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-teal-50/30 flex flex-col items-center justify-center p-6">
       <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-700">
-        <div className="w-20 h-20 bg-teal-200 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-md shadow-teal-900/5">
-          <Activity className="text-teal-800" size={40} />
+        <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-md shadow-teal-900/5 overflow-hidden">
+          <Image src="/logo-kalos.jpg" alt="Kalos Logo" width={96} height={96} className="object-cover" />
         </div>
         <h1 className="text-4xl font-bold text-slate-800 tracking-tight">Kalos Kinesiología</h1>
         <p className="text-slate-500 mt-2 font-medium text-lg">Tu plataforma de gestión clínica y rehabilitación</p>

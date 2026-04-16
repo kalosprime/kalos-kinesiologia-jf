@@ -4,6 +4,7 @@ import { Home, Calendar, Dumbbell, User } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
 
 export default function PatientLayout({
   children,
@@ -32,7 +33,12 @@ export default function PatientLayout({
     <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
       {/* Top Header para móvil */}
       <header className="bg-white p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10 md:hidden">
-        <span className="font-bold text-xl tracking-tight text-slate-800">Kalos<span className="text-purple-600">Paciente</span></span>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
+            <Image src="/logo-kalos.jpg" alt="Logo" width={32} height={32} className="object-cover" />
+          </div>
+          <span className="font-bold text-xl tracking-tight text-slate-800">Kalos<span className="text-purple-600">JF</span></span>
+        </div>
         <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">
           {userInitials}
         </div>

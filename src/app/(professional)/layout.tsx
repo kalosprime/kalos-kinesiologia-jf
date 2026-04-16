@@ -4,8 +4,8 @@ import { Calendar, Users, Activity, Clock, Settings, Dumbbell } from 'lucide-rea
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function ProfessionalLayout({
   children,
@@ -56,8 +56,8 @@ export default function ProfessionalLayout({
       {/* Menú Lateral Fijo */}
       <aside className="w-64 flex flex-col gap-6 p-8 border-r border-slate-100 bg-white/50 backdrop-blur-sm fixed h-screen">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-teal-200 rounded-2xl flex items-center justify-center shadow-sm">
-            <Activity className="text-teal-800" size={24} />
+          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm overflow-hidden border border-slate-100">
+            <Image src="/logo-kalos.jpg" alt="Logo" width={48} height={48} className="object-cover" />
           </div>
           <span className="font-bold text-2xl tracking-tight text-slate-800">Kalos<span className="text-teal-600">JF</span></span>
         </div>

@@ -1,10 +1,11 @@
 'use client';
 
-import { Activity, Mail, Lock } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -46,8 +47,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-teal-50/30 flex items-center justify-center p-6">
       <div className="bg-white w-full max-w-md p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-teal-900/5">
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-teal-200 rounded-3xl flex items-center justify-center mb-6 shadow-sm">
-            <Activity className="text-teal-800" size={32} />
+          <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-sm overflow-hidden border border-slate-100">
+            <Image src="/logo-kalos.jpg" alt="Logo" width={80} height={80} className="object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-slate-800 tracking-tight text-center">Bienvenido a Kalos JF</h1>
           <p className="text-slate-400 mt-2 font-medium text-center">Inicia sesión en tu portal</p>
