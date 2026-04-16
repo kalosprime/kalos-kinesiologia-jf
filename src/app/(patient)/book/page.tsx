@@ -83,9 +83,15 @@ export default function BookAppointmentPage() {
       const endTime = new Date(date);
       endTime.setHours(endH, endM, 0, 0);
 
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
+
       while (current < endTime) {
-        const timeStr = current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        slots.push(timeStr);
+        // Solo agregamos el horario si no ha pasado (si es hoy) o si es un día futuro
+        if (!isToday || current > now) {
+          const timeStr = current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+          slots.push(timeStr);
+        }
         current.setMinutes(current.getMinutes() + duration);
       }
 

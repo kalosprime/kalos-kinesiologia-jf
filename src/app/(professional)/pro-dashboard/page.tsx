@@ -48,25 +48,43 @@ export default function ProfessionalDashboard() {
       if (error) console.error('Error fetching pro appointments:', error);
 
       if (apts) {
+        const now = new Date();
+        const toUpdate: string[] = [];
+
         const loadedApts = apts.map((a, idx: number) => {
           const match = a.notes?.match(/Turno agendado: (.*) a las (.*)/);
-          
-          // Manejar si Patient es un objeto o un arreglo (Supabase varía según la relación)
           const pRaw: unknown = Array.isArray(a.Patient) ? a.Patient[0] : a.Patient;
           const patientData = pRaw as { id: string, name: string } | null;
-          
+
+          // Lógica de Autocompletado:
+          // Si el turno tiene fecha anterior a la actual y sigue pendiente, lo completamos.
+          const aptDate = new Date(a.date);
+          const isPast = aptDate < now;
+          let currentStatus = a.status;
+
+          if (a.status === 'PENDIENTE' && isPast) {
+            toUpdate.push(a.id);
+            currentStatus = 'COMPLETADO';
+          }
+
           return {
             id: a.id || idx.toString(),
             patientId: patientData?.id || '',
             patient: patientData?.name || 'Paciente Nuevo',
             time: match ? match[2] : 'Sin horario',
             type: 'Consulta Inicial',
-            status: a.status,
-            color: 'bg-blue-100 text-blue-700'
+            status: currentStatus,
+            color: currentStatus === 'COMPLETADO' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
           };
         });
+
+        // Actualización silenciosa en la base de datos
+        if (toUpdate.length > 0) {
+          supabase.from('Appointment').update({ status: 'COMPLETADO' }).in('id', toUpdate).then();
+        }
+
         setAppointments(loadedApts);
-        setStats(prev => ({ ...prev, today: loadedApts.length }));
+        setStats(prev => ({ ...prev, today: loadedApts.filter(a => a.status === 'PENDIENTE').length }));
       }
 
       setLoading(false);
