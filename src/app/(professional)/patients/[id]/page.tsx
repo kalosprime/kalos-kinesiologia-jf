@@ -5,6 +5,7 @@ import Link from 'next/link';
 import RoutineBuilder from '@/components/RoutineBuilder';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useSearchParams } from 'next/navigation';
 
 interface Patient {
   id: string;
@@ -16,7 +17,10 @@ interface Patient {
 }
 
 export default function PatientDetailPage({ params }: { params: { id: string } }) {
-  const [activeTab, setActiveTab] = useState<'historial' | 'rutina'>('historial');
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') === 'rutina' ? 'rutina' : 'historial';
+  
+  const [activeTab, setActiveTab] = useState<'historial' | 'rutina'>(defaultTab);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);

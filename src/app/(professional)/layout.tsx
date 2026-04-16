@@ -61,8 +61,7 @@ export default function ProfessionalLayout({
           <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
             <Users size={20} /> Mis Pacientes
           </Link>
-          {/* Quitamos el enlace hardcodeado de Rutinas para evitar confusión */}
-          <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all opacity-50 cursor-not-allowed">
+          <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
             <Activity size={20} /> Rutinas
           </Link>
           <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all opacity-50 cursor-not-allowed">

@@ -133,7 +133,7 @@ export default function PatientsPage() {
                         <Link href={`/patients/${p.id}`} className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all" title="Ver Historial">
                           <FileText size={18} />
                         </Link>
-                        <Link href={`/patients/${p.id}`} className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all" title="Ver Rutina">
+                        <Link href={`/patients/${p.id}?tab=rutina`} className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all" title="Ver Rutina">
                           <ClipboardList size={18} />
                         </Link>
                         <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
