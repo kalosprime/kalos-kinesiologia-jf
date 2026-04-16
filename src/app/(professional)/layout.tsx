@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Users, Activity, Clock, Settings } from 'lucide-react';
+import { Calendar, Users, Activity, Clock, Settings, Dumbbell } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -68,6 +68,9 @@ export default function ProfessionalLayout({
           </Link>
           <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
             <Users size={20} /> Mis Pacientes
+          </Link>
+          <Link href="/exercises" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
+            <Dumbbell size={20} /> Catálogo de Ejercicios
           </Link>
           <Link href="/patients" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-teal-50 hover:text-teal-700 rounded-2xl font-bold transition-all">
             <Activity size={20} /> Rutinas
