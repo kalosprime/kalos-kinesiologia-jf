@@ -1,6 +1,6 @@
 'use client';
 
-import { Dumbbell, PlayCircle, Activity, ChevronRight, ClipboardList } from 'lucide-react';
+import { Dumbbell, PlayCircle, Activity, ClipboardList, Clock, Flame } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -19,7 +19,8 @@ export default function MyRoutinePage() {
 
   const fetchRoutine = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) return;
 
       const { data: routines, error: routineError } = await supabase
@@ -67,55 +68,85 @@ export default function MyRoutinePage() {
     fetchRoutine();
   }, [fetchRoutine]);
 
-  if (loading) return <div className="min-h-[80vh] flex items-center justify-center text-emerald-500 font-bold flex-col gap-4">
-    <Activity className="animate-spin" size={32} />
-    <p className="text-xs tracking-[0.2em] uppercase text-white">Cargando ejercicios...</p>
-  </div>;
+  if (loading) return (
+    <div className="min-h-[80vh] flex items-center justify-center text-emerald-500 font-bold flex-col gap-4">
+      <Activity className="animate-spin" size={32} />
+      <p className="text-xs tracking-[0.2em] uppercase text-white">Cargando tu entrenamiento...</p>
+    </div>
+  );
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <header>
-        <div className="flex items-center gap-2 text-emerald-500 font-bold text-[10px] uppercase tracking-[0.3em] mb-2">
-          <Dumbbell size={12} /> Entrenamiento Activo
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <header className="relative">
+        <div className="flex items-center gap-2 text-emerald-500 font-bold text-[10px] uppercase tracking-[0.4em] mb-3">
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+          Rutina Personalizada
         </div>
-        <h1 className="text-4xl font-black text-white tracking-tighter uppercase">{routineName}</h1>
+        <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">{routineName}</h1>
+        <div className="flex gap-4 mt-6">
+           <div className="bg-white/5 px-4 py-2 rounded-xl border border-white/5 flex items-center gap-2">
+              <Clock size={14} className="text-emerald-500" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">45-60 MIN</span>
+           </div>
+           <div className="bg-white/5 px-4 py-2 rounded-xl border border-white/5 flex items-center gap-2">
+              <Flame size={14} className="text-orange-500" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Intensidad Media</span>
+           </div>
+        </div>
       </header>
 
-      <div className="space-y-4 pb-20">
+      <div className="pb-24">
         {routine.length === 0 ? (
-          <div className="bg-[#111] p-12 rounded-[2.5rem] border border-white/5 text-center flex flex-col items-center">
-             <ClipboardList size={48} className="text-slate-800 mb-4" strokeWidth={1} />
-             <p className="font-bold text-slate-500">No hay ejercicios asignados todavía</p>
-             <p className="text-slate-600 text-xs mt-1">Tu kinesiólogo está preparando tu plan.</p>
+          <div className="bg-[#111] p-16 rounded-[3rem] border border-white/5 text-center flex flex-col items-center">
+             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                <ClipboardList size={40} className="text-slate-800" strokeWidth={1} />
+             </div>
+             <p className="font-bold text-slate-400 text-lg">No hay ejercicios asignados</p>
+             <p className="text-slate-600 text-sm mt-2 max-w-[250px]">Tu plan de rehabilitación aparecerá aquí apenas sea asignado por tu kinesiólogo.</p>
           </div>
         ) : (
-          routine.map((ex, i) => (
-            <div key={ex.id} className="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden group hover:border-emerald-500/30 transition-all">
-              <div className="p-6 flex items-center gap-5">
-                <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center font-black text-slate-500 group-hover:text-emerald-500 group-hover:bg-emerald-500/10 transition-all text-xl">
-                  {i + 1}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {routine.map((ex, i) => (
+              <div 
+                key={ex.id} 
+                className="bg-[#111] aspect-square sm:aspect-auto sm:min-h-[220px] rounded-[2.5rem] border border-white/5 p-8 flex flex-col justify-between group hover:border-emerald-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/5 relative overflow-hidden"
+              >
+                {/* Badge de Orden */}
+                <div className="absolute top-6 right-8 text-4xl font-black text-white/5 group-hover:text-emerald-500/10 transition-colors">
+                  {i + 1 < 10 ? `0${i + 1}` : i + 1}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white text-lg uppercase tracking-tight">{ex.name}</h3>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{ex.series} SERIES</span>
-                    <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ex.reps} REPS</span>
+
+                <div className="relative z-10">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-500">
+                    <Dumbbell size={24} />
                   </div>
+                  <h3 className="font-black text-white text-xl uppercase leading-tight tracking-tighter group-hover:text-emerald-400 transition-colors">
+                    {ex.name}
+                  </h3>
                 </div>
-                <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-slate-600">
-                  <PlayCircle size={24} />
+
+                <div className="mt-8 flex items-end justify-between relative z-10">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-black text-white tracking-tighter">{ex.series}</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Series</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-emerald-500 tracking-tighter">{ex.reps}</span>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reps</span>
+                    </div>
+                  </div>
+                  
+                  <button className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center text-white hover:bg-emerald-500 hover:text-black transition-all group-hover:shadow-lg group-hover:shadow-emerald-500/20">
+                    <PlayCircle size={28} />
+                  </button>
                 </div>
+
+                {/* Overlay sutil para el efecto de cuadrícula */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
-              {ex.description && (
-                <div className="px-6 pb-6 pt-0">
-                  <p className="text-xs text-slate-500 leading-relaxed bg-black/40 p-4 rounded-xl border border-white/5 italic">
-                    &ldquo;{ex.description}&rdquo;
-                  </p>
-                </div>
-              )}
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>
