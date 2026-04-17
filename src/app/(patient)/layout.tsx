@@ -34,8 +34,8 @@ export default function PatientLayout({
   const navItems = [
     { href: '/dashboard', icon: <Home size={24} />, label: 'Inicio' },
     { href: '/book', icon: <Calendar size={24} />, label: 'Turnos' },
-    { href: '#', icon: <Dumbbell size={24} />, label: 'Mi Rutina' },
-    { href: '#', icon: <User size={24} />, label: 'Perfil' },
+    { href: '/my-routine', icon: <Dumbbell size={24} />, label: 'Mi Rutina' },
+    { href: '/profile', icon: <User size={24} />, label: 'Perfil' },
   ];
 
   return (
