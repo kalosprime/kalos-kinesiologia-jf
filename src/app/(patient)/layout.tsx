@@ -17,7 +17,9 @@ export default function PatientLayout({
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      
       if (user?.user_metadata?.full_name) {
         const fullName = user.user_metadata.full_name;
         const splitName = fullName.split(' ');
