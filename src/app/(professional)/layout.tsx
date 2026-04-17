@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Users, Activity, Settings, Dumbbell, LogOut } from 'lucide-react';
+import { Calendar, Users, Activity, Clock, Settings, Dumbbell, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -24,6 +24,7 @@ export default function ProfessionalLayout({
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user || user.user_metadata?.role !== 'professional') {
+          console.log('Usuario no autorizado para el panel profesional');
           setIsAuthorized(false);
           router.push('/login');
           return;
@@ -60,8 +61,9 @@ export default function ProfessionalLayout({
 
   const navItems = [
     { href: '/pro-dashboard', icon: <Calendar size={20} />, label: 'Dashboard' },
-    { href: '/patients', icon: <Users size={20} />, label: 'Pacientes' },
+    { href: '/patients', icon: <Users size={20} />, label: 'Mis Pacientes' },
     { href: '/exercises', icon: <Dumbbell size={20} />, label: 'Catálogo' },
+    { href: '/routines', icon: <Activity size={20} />, label: 'Rutinas' },
     { href: '/settings', icon: <Settings size={20} />, label: 'Configuración' },
   ];
 
@@ -82,7 +84,7 @@ export default function ProfessionalLayout({
           
           <nav className="flex flex-col gap-2">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== '/pro-dashboard' && pathname.startsWith(item.href));
+              const isActive = pathname === item.href;
               return (
                 <Link 
                   key={item.href}
@@ -97,6 +99,11 @@ export default function ProfessionalLayout({
                 </Link>
               );
             })}
+            <div className="pt-4 mt-4 border-t border-white/5">
+              <Link href="#" className="flex items-center gap-3 px-5 py-4 text-slate-600 rounded-2xl font-bold transition-all opacity-40 cursor-not-allowed">
+                <Clock size={20} /> Historial
+              </Link>
+            </div>
           </nav>
         </div>
 

@@ -51,10 +51,10 @@ export default function ProfessionalDashboard() {
         const now = new Date();
         const toUpdate: string[] = [];
 
-        const loadedApts = (apts as any[]).map((a: any, idx: number) => {
+        const loadedApts = (apts as unknown as Array<{ id: string, status: string, notes: string, date: string, Patient: { id: string, name: string } | Array<{ id: string, name: string }> | null }>).map((a, idx: number) => {
           const match = a.notes?.match(/Turno agendado: (.*) a las (.*)/);
-          const pRaw: unknown = Array.isArray(a.Patient) ? a.Patient[0] : a.Patient;
-          const patientData = pRaw as { id: string, name: string } | null;
+          const pRaw = a.Patient;
+          const patientData = Array.isArray(pRaw) ? pRaw[0] : pRaw;
 
           const aptDate = new Date(a.date);
           const isPast = aptDate < now;
