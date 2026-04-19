@@ -20,13 +20,23 @@ export default function PatientLayout({
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
       
-      if (user?.user_metadata?.full_name) {
-        const fullName = user.user_metadata.full_name;
-        const splitName = fullName.split(' ');
-        if (splitName.length > 1) {
-          setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
-        } else {
-          setUserInitials(fullName.substring(0, 2).toUpperCase());
+      if (user) {
+        // Consultar DB para asegurar identidad
+        const { data: patientData } = await supabase
+          .from('Patient')
+          .select('name')
+          .eq('email', user.email)
+          .single();
+
+        const fullName = patientData?.name || user.user_metadata?.full_name;
+        
+        if (fullName) {
+          const splitName = fullName.split(' ');
+          if (splitName.length > 1) {
+            setUserInitials(splitName[0][0].toUpperCase() + splitName[1][0].toUpperCase());
+          } else {
+            setUserInitials(fullName.substring(0, 2).toUpperCase());
+          }
         }
       }
     };

@@ -34,7 +34,16 @@ export default function PatientDashboard() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    if (user.user_metadata?.full_name) {
+    // Buscar el nombre real en la tabla de Pacientes en lugar de confiar en metadata
+    const { data: patientData } = await supabase
+      .from('Patient')
+      .select('name')
+      .eq('email', user.email)
+      .single();
+
+    if (patientData) {
+      setUserName(patientData.name.split(' ')[0]);
+    } else if (user.user_metadata?.full_name) {
       setUserName(user.user_metadata.full_name.split(' ')[0]);
     }
 
